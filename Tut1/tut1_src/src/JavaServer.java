@@ -56,7 +56,7 @@ public class JavaServer {
 
   public static void simple(Myservice.Processor processor) {
     try {
-      TServerTransport serverTransport = new TServerSocket(9090);
+      TServerTransport serverTransport = new TServerSocket(14264);
       TServer server = new TSimpleServer(
               new Args(serverTransport).processor(processor));
 

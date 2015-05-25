@@ -38,7 +38,7 @@ public class JavaClient {
 
     try {
       TTransport transport;
-      transport = new TSocket("localhost", 9090);
+      transport = new TSocket("localhost", 14264);
       transport.open();
 
       TProtocol protocol = new  TBinaryProtocol(transport);
