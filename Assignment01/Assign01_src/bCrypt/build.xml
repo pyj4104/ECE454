@@ -21,7 +21,7 @@
 	</target>
 	
 	<target name="build-tests" depends="init, build">
-		<javac target="1.6" srcdir="${test-src}" destdir="${test-build}">
+		<javac source="1.6" target="1.6" srcdir="${test-src}" destdir="${test-build}">
 			<classpath>
 				<pathelement path="${build}"/>
 			</classpath>
