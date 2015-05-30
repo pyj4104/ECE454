@@ -16,9 +16,9 @@
  specific language governing permissions and limitations
  under the License.
 -->
-<project name="tutorial" default="tutorial" basedir=".">
+<project name="ece454750s15a1" default="ece454750s15a1" basedir=".">
 
-  <description>Thrift Java Tutorial</description>
+  <description>Thrift Java Assignment 1</description>
 
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
@@ -37,10 +37,11 @@
     <path refid="libs.classpath" />
     <pathelement path="${gen}" />
   </path>
-  <path id="tutorial.classpath">
+  <path id="ece454750s15a1.classpath">
     <path refid="build.classpath" />
     <pathelement path="${build}" />
-    <pathelement path="tutorial.jar" />
+    <pathelement path="ece454750s15a1.jar" />
+    <pathelement path="${src}" />
   </path>
   
   <target name="init">
@@ -54,20 +55,20 @@
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
-  <target name="test" depends="tutorial" />
+  <target name="test" depends="ece454750s15a1" />
 
-  <!-- target name="tutorial" description="Run the tutorial" -->
-  <target name="tutorial" description="Run the tutorial" depends="compile" >
-    <jar jarfile="tutorial.jar" basedir="${build}"/>
+  <!-- target name="ece454750s15a1" description="Run the ece454750s15a1" -->
+  <target name="ece454750s15a1" description="Run the ece454750s15a1" depends="compile" >
+    <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
     <parallel>
       <java classname="JavaServer" fork="true" timeout="10000"
-        classpathref="tutorial.classpath" failonerror="false" output="${build}/log/tutorial.log">
+        classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
       </java>
       <sequential>
         <sleep seconds="2"/>
-        <echo>tutorial client simple:</echo>
-        <java classname="JavaClient"
-          classpathref="tutorial.classpath" failonerror="true">
+        <echo>ece454750s15a1 client simple:</echo>
+        <java classname="TestClient"
+          classpathref="ece454750s15a1.classpath" failonerror="true">
           <arg line="simple"/>
         </java>
       </sequential>
@@ -78,36 +79,28 @@
     <!-- Generate the thrift gen-java source -->
     <!-- exec executable="../../compiler/cpp/thrift" failonerror="true" -->
     <exec executable="/usr/bin/thrift" failonerror="true" >
-      <arg line="--gen java -r tutorial.thrift"/>
+      <arg line="--gen java -r ece454750s15a1.thrift"/>
     </exec>
   </target>
 
-  <target name="tutorialclient" description="Run a tutorial client" depends="compile">
-    <echo>tutorial client simple:</echo>
-    <java classname="JavaClient"
-      classpathref="tutorial.classpath" failonerror="true">
+  <target name="ece454750s15a1client" description="Run a ece454750s15a1 client" depends="compile">
+    <echo>ece454750s15a1 client simple:</echo>
+    <java classname="TestClient"
+      classpathref="ece454750s15a1.classpath" failonerror="true">
       <arg line="simple"/>
     </java>
   </target>
 
-  <target name="remoteclient" description="Run a tutorial client" >
-    <echo>tutorial client simple:</echo>
-    <java classname="JavaClient2"
-      classpathref="tutorial.classpath" failonerror="true">
-      <arg line="simple eceubuntu"/>
-    </java>
-  </target>
-
-  <target name="tutorialserver" description="Run a tutorial server" depends="compile">
-      <java classname="JavaServer" fork="true"
-        classpathref="tutorial.classpath" failonerror="false" output="${build}/log/tutorial.log">
+  <target name="ece454750s15a1server" description="Run a ece454750s15a1 server" depends="compile">
+      <java classname="BEServer.java" fork="true"
+        classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
       </java>
   </target>
 
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${gen}"/>
-    <delete file="tutorial.jar" />
+    <delete file="ece454750s15a1.jar" />
   </target>
 
 </project>

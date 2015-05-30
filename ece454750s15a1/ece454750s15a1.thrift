@@ -12,7 +12,7 @@ struct Password
   1: string password
   2: string hash
   3: bool plainMatchesHashed
-  4: i64 logRounds
+  4: i32 logRounds
 }
 
 struct GroupMembers
@@ -22,7 +22,7 @@ struct GroupMembers
 
 service A1Password
 {
-   string hashPassword(1:string password, 2:i64 logRounds),
+   string hashPassword(1:string password, 2:i32 logRounds),
    bool checkPassword(1:string password, 2:string hash)
 }
 
