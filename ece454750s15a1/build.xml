@@ -16,21 +16,20 @@
  specific language governing permissions and limitations
  under the License.
 -->
-<project name="Assign01" default="Assign01" basedir=".">
+<project name="tutorial" default="tutorial" basedir=".">
 
-  <description>Thrift Java Assignment1</description>
+  <description>Thrift Java Tutorial</description>
 
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
-  <property name="bCrypt" location="bCrypt" />
 
   <path id="libs.classpath">
-    <fileset dir="../../lib/java/build">
+    <fileset dir="../lib/java/build">
       <include name="*.jar" />
       <exclude name="-test.jar" />
     </fileset>
-    <fileset dir="../../lib/java/build/lib">
+    <fileset dir="../lib/java/build/lib">
       <include name="*.jar" />
     </fileset>
   </path>
@@ -38,10 +37,10 @@
     <path refid="libs.classpath" />
     <pathelement path="${gen}" />
   </path>
-  <path id="assignment1.classpath">
+  <path id="tutorial.classpath">
     <path refid="build.classpath" />
     <pathelement path="${build}" />
-    <pathelement path="assignment1.jar" />
+    <pathelement path="tutorial.jar" />
   </path>
   
   <target name="init">
@@ -55,20 +54,20 @@
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
   </target>
 
-  <target name="test" depends="Assign01" />
+  <target name="test" depends="tutorial" />
 
   <!-- target name="tutorial" description="Run the tutorial" -->
-  <target name="Assign01" description="Run the Assign01" depends="compile" >
-    <jar jarfile="Assign01" basedir="${build}"/>
+  <target name="tutorial" description="Run the tutorial" depends="compile" >
+    <jar jarfile="tutorial.jar" basedir="${build}"/>
     <parallel>
       <java classname="JavaServer" fork="true" timeout="10000"
-        classpathref="assignment1.classpath" failonerror="false" output="${build}/log/tutorial.log">
+        classpathref="tutorial.classpath" failonerror="false" output="${build}/log/tutorial.log">
       </java>
       <sequential>
         <sleep seconds="2"/>
         <echo>tutorial client simple:</echo>
         <java classname="JavaClient"
-          classpathref="assignment1.classpath" failonerror="true">
+          classpathref="tutorial.classpath" failonerror="true">
           <arg line="simple"/>
         </java>
       </sequential>
@@ -85,9 +84,17 @@
 
   <target name="tutorialclient" description="Run a tutorial client" depends="compile">
     <echo>tutorial client simple:</echo>
-    <java classname="TestClient"
-      classpathref="assignment1.classpath" failonerror="true">
+    <java classname="JavaClient"
+      classpathref="tutorial.classpath" failonerror="true">
       <arg line="simple"/>
+    </java>
+  </target>
+
+  <target name="remoteclient" description="Run a tutorial client" >
+    <echo>tutorial client simple:</echo>
+    <java classname="JavaClient2"
+      classpathref="tutorial.classpath" failonerror="true">
+      <arg line="simple eceubuntu"/>
     </java>
   </target>
 
@@ -100,7 +107,7 @@
   <target name="clean">
     <delete dir="${build}" />
     <delete dir="${gen}"/>
-    <delete file="Tutorial.jar" />
+    <delete file="tutorial.jar" />
   </target>
 
 </project>
