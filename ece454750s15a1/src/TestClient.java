@@ -21,9 +21,8 @@ public class TestClient
 		try
 		{
 			TTransport transport;
-			transport = new TSocket("localhost", 24264);
+			transport = new TSocket("localhost", 14264);
 			transport.open();
-
 			TProtocol protocol = new  TBinaryProtocol(transport);
 			A1Password.Client client = new A1Password.Client(protocol);
 

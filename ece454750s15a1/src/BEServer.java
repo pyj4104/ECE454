@@ -28,6 +28,7 @@ public class BEServer
 					simple(proc);
 				}
 			};
+			new Thread(simple).start();
 		}
 		catch (Exception X)
 		{
@@ -39,7 +40,7 @@ public class BEServer
 	{
 		try
 		{
-			TServerTransport serverTransport = new TServerSocket(24264);
+			TServerTransport serverTransport = new TServerSocket(14264);
 			TServer server = new TSimpleServer(new Args(serverTransport).processor(proc));
 
 			System.out.println("Starting the server...");
