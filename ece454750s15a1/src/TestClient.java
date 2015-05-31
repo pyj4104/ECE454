@@ -1,4 +1,3 @@
-package ece454750s15a1;
 import ece454750s15a1.*;
 
 import org.apache.thrift.TException;
@@ -22,7 +21,7 @@ public class TestClient
 		try
 		{
 			TTransport transport;
-			transport = new TSocket("localhost", 14264);
+			transport = new TSocket("localhost", 24264);
 			transport.open();
 
 			TProtocol protocol = new  TBinaryProtocol(transport);

@@ -41,7 +41,6 @@
     <path refid="build.classpath" />
     <pathelement path="${build}" />
     <pathelement path="ece454750s15a1.jar" />
-    <pathelement path="${src}" />
   </path>
   
   <target name="init">
@@ -61,7 +60,7 @@
   <target name="ece454750s15a1" description="Run the ece454750s15a1" depends="compile" >
     <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
     <parallel>
-      <java classname="JavaServer" fork="true" timeout="10000"
+      <java classname="BEServer" fork="true" timeout="10000"
         classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
       </java>
       <sequential>
@@ -92,7 +91,7 @@
   </target>
 
   <target name="ece454750s15a1server" description="Run a ece454750s15a1 server" depends="compile">
-      <java classname="BEServer.java" fork="true"
+      <java classname="BEServer" fork="true"
         classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
       </java>
   </target>

@@ -39,7 +39,7 @@ public class BEServer
 	{
 		try
 		{
-			TServerTransport serverTransport = new TServerSocket(14264);
+			TServerTransport serverTransport = new TServerSocket(24264);
 			TServer server = new TSimpleServer(new Args(serverTransport).processor(proc));
 
 			System.out.println("Starting the server...");
