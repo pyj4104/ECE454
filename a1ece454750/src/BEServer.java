@@ -1,13 +1,13 @@
 //package ece454750s15a1;
 import ece454750s15a1.*;
+import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.server.TSimpleServer;
-import org.apache.thrift.server.TThreadPoolServer;
-import org.apache.thrift.transport.TSSLTransportFactory;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
-import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
+import org.apache.thrift.server.TThreadedSelectorServer.Args;
+import org.apache.thrift.server.TThreadedSelectorServer;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TTransportException;
 
 public class BEServer
 {
@@ -55,8 +55,18 @@ public class BEServer
 	{
 		try
 		{
-			TServerTransport serverTransport = new TServerSocket(portNumber);
-			TServer server = new TSimpleServer(new Args(serverTransport).processor(proc));
+			TNonblockingServerTransport trans;
+			Args args;
+			TServer server;
+		
+			trans = new TNonblockingServerSocket(portNumber);
+			args = new TThreadedSelectorServer.Args(trans);
+			args.transportFactory(new TFramedTransport.Factory());
+			args.protocolFactory(new TBinaryProtocol.Factory());
+			args.processor(proc);
+			args.selectorThreads(4);
+			args.workerThreads(32);
+			server = new TThreadedSelectorServer(args);
 
 			System.out.println("Starting the server...");
 			server.serve();

@@ -1,8 +1,8 @@
 //package ece454750s15a1;
 import ece454750s15a1.*;
 import org.apache.thrift.TException;
-import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -18,17 +18,50 @@ public class TestClient
 			System.exit(0);
 		}
 		
+		simple();
+		
 		try
 		{
-			System.out.println("before new TSocket");
+			for(int i=0; i<10; i++)
+			{
+				new Thread("" + i)
+				{
+					public void run()
+					{
+						
+					}
+			  	}.start();
+			}
+		}
+		catch (Exception X)
+		{
+			X.printStackTrace();
+		}
+	}
+	
+	public static void simple()
+	{
+		try
+		{
 			TTransport transport;
-			transport = new TSocket("localhost", 14264);
+			TProtocol protocol;
+			A1Password.Client client;
+
+			String hashed;
+			String password;
+			int saltGenLogRounds;
+			boolean check;
+			
+			transport = new TFramedTransport(new TSocket("localhost", 14264));
 			transport.open();
+			protocol = new TBinaryProtocol(transport);
+			client = new A1Password.Client(protocol);
 
-			TProtocol protocol = new TBinaryProtocol(transport);
-			A1Password.Client client = new A1Password.Client(protocol);
-
-			perform(client);
+			password = "David is so good that";
+			saltGenLogRounds = 12;
+			
+			hashed = hashPass(client, password, saltGenLogRounds);
+			check = checkPass(client, password, hashed);
 
 			transport.close();
 		}
@@ -38,23 +71,20 @@ public class TestClient
 		}
 	}
 	
-	private static void perform(A1Password.Client client) throws TException
+	private static String hashPass(A1Password.Client client, String password, int saltGenLogRounds)
+	throws TException
 	{
-		String password;
-		String hashed;
-		int saltGenLogRounds;
-		boolean check;
+		String hashed = client.hashPassword(password, saltGenLogRounds);
+		
+		return hashed;
+	}
+	
+	private static boolean checkPass(A1Password.Client client, String password, String hashed)
+	throws TException
+	{
+		boolean check = client.checkPassword(password, hashed);
 
-		password = "David is so good that";
-		saltGenLogRounds = 10;
-
-		hashed = client.hashPassword(password, saltGenLogRounds);
-
-		System.out.println(hashed);
-
-		check = client.checkPassword(password, hashed);
-
-		System.out.println(check);
+		return check;
 	}
 }
 
