@@ -1,6 +1,5 @@
-package ece454750s15a1;
+//package ece454750s15a1;
 import ece454750s15a1.*;
-
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TTransport;
@@ -21,6 +20,7 @@ public class TestClient
 		
 		try
 		{
+			System.out.println("before new TSocket");
 			TTransport transport;
 			transport = new TSocket("localhost", 14264);
 			transport.open();

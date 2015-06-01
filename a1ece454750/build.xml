@@ -18,11 +18,15 @@
 -->
 <project name="ece454750s15a1" default="ece454750s15a1" basedir=".">
 
-  <description>Thrift Java Assignment 1</description>
+  <description>Thrift Java ece454750s15a1</description>
 
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
+  <property name="BE1" value="-host ecelinux1 -pport 14264 -mport 24264 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="BE2" value="-host ecelinux1 -pport 14265 -mport 24265 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="FE1" value="-host ecelinux1 -pport 14266 -mport 24266 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="FE2" value="-host ecelinux1 -pport 14267 -mport 24267 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
 
   <path id="libs.classpath">
     <fileset dir="../lib">
@@ -47,8 +51,8 @@
   </target>
 
   <target name="compile" depends="init, generate">
-    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" classpathref="libs.classpath" />
-    <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="build.classpath" />
+    <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" includeantruntime="false" classpathref="libs.classpath" />
+    <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" includeantruntime="false" classpathref="build.classpath" />
   </target>
 
   <target name="test" depends="ece454750s15a1" />
@@ -79,17 +83,39 @@
     </exec>
   </target>
 
-  <target name="ece454750s15a1client" description="Run a ece454750s15a1 client" depends="compile">
-    <echo>ece454750s15a1 client simple:</echo>
+  <target name="client" description="Run a ece454750s15a1 client" depends="compile">
+    <echo>ece454750s15a1 client:</echo>
     <java classname="TestClient"
       classpathref="ece454750s15a1.classpath" failonerror="true">
       <arg line="simple"/>
     </java>
   </target>
-
-  <target name="ece454750s15a1server" description="Run a ece454750s15a1 server" depends="compile">
+  <target name="beserver" description="Run a ece454750s15a1 BE server" depends="compile">
+  <echo>ece454750s15a1 BEServer:</echo>
       <java classname="BEServer" fork="true"
-        classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
+        classpathref="ece454750s15a1.classpath" failonerror="false" >
+      <arg line="${BE1}"/>
+      </java>
+  </target>
+  <target name="beserver2" description="Run a ece454750s15a1 BE server" depends="compile">
+  <echo>ece454750s15a1 BEServer2:</echo>
+      <java classname="BEServer" fork="true"
+        classpathref="ece454750s15a1.classpath" failonerror="false" >
+      <arg line="${BE2}"/>
+      </java>
+  </target>
+  <target name="feserver" description="Run a ece454750s15a1 FE server" depends="compile">
+  <echo>ece454750s15a1 FEServer:</echo>
+      <java classname="FEServer" fork="true"
+        classpathref="ece454750s15a1.classpath" failonerror="false" >
+      <arg line="${FE1}"/>
+      </java>
+  </target>
+  <target name="feserver2" description="Run a ece454750s15a1 FE server" depends="compile">
+  <echo>ece454750s15a1 FEServer2:</echo>
+      <java classname="FEServer" fork="true"
+        classpathref="ece454750s15a1.classpath" failonerror="false" >
+      <arg line="${FE2}"/>
       </java>
   </target>
 
