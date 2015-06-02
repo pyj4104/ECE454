@@ -1,5 +1,7 @@
 //package ece454750s15a1;
 import ece454750s15a1.*;
+import java.util.List;
+import java.util.Arrays;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TFramedTransport;
@@ -18,25 +20,32 @@ public class TestClient
 			System.exit(0);
 		}
 		
-		simple();
-		
 		try
 		{
-			for(int i=0; i<10; i++)
-			{
-				new Thread("" + i)
-				{
-					public void run()
-					{
-						
-					}
-			  	}.start();
-			}
+			A1Management.Client client2;
+			TProtocol protocol;
+			List<String> QID;
+			PerfCounters returnStruct;
+			
+			TTransport trans = new TFramedTransport(new TSocket("localhost", 24264));
+			trans.open();
+			protocol = new TBinaryProtocol(trans);
+			client2 = new A1Management.Client(protocol);
+			QID = client2.getGroupMembers();
+			returnStruct = client2.getPerfCounters();
+			System.out.println("hi");
+			System.out.println(Arrays.toString(QID.toArray()));
+			System.out.println(returnStruct.numSecondsUp);
+			System.out.println(returnStruct.numRequestsReceived);
+			System.out.println(returnStruct.numRequestsCompleted);
+			trans.close();
 		}
-		catch (Exception X)
+		catch(Exception X)
 		{
 			X.printStackTrace();
 		}
+		
+		simple();
 	}
 	
 	public static void simple()
@@ -62,6 +71,9 @@ public class TestClient
 			
 			hashed = hashPass(client, password, saltGenLogRounds);
 			check = checkPass(client, password, hashed);
+			
+			System.out.println(hashed);
+			System.out.println(check);
 
 			transport.close();
 		}

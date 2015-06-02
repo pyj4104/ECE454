@@ -7,19 +7,14 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.*;
 
-public class BEManagementHandler implements A1Management.Iface
+public class FEManagementHandler implements A1Management.Iface
 {
 	private Date _startTime;
-	private int[] localReqRec;
-	private int[] localReqCom;
 	
-	public BEManagementHandler(int[] numReqRec, int[] numReqCom)
+	public void BEPasswordHandler()
 	{
 		this._startTime = new Date();
-		localReqRec = numReqRec;
-		localReqCom = numReqCom;
 	}
 
 	public PerfCounters getPerfCounters()
@@ -28,9 +23,8 @@ public class BEManagementHandler implements A1Management.Iface
 		
 		returnStruct = new PerfCounters();
 		
-		returnStruct.numSecondsUp = (int)((new Date().getTime() - this._startTime.getTime())) / 1000;
-		returnStruct.numRequestsReceived = localReqRec[0];
-		returnStruct.numRequestsCompleted = localReqCom[0];
+		returnStruct.numSecondsUp = (int)((new Date().getTime() - this._startTime.getTime())) * 1000;
+
 		return returnStruct;
 	}
 	
