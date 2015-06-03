@@ -20,6 +20,15 @@ struct GroupMembers
   1: list<string> groupMem
 }
 
+struct BEJoinProtocol
+{
+  1: string host
+  2: i32 pportNum
+  3: i32 mportNum
+  4: bool isBackEnd
+  5: i32 numCore
+}
+
 service A1Password
 {
    string hashPassword(1:string password, 2:i32 logRounds),
@@ -28,6 +37,8 @@ service A1Password
 
 service A1Management
 {
+   void Join(1:BEJoinProtocol joinProto),
+   void Gossip(1:list<BEJoinProtocol> listOfBE),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()
 }

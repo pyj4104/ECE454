@@ -22,12 +22,14 @@ public class TestClient
 		
 		try
 		{
+			simple();
+			
 			A1Management.Client client2;
 			TProtocol protocol;
 			List<String> QID;
 			PerfCounters returnStruct;
 			
-			TTransport trans = new TFramedTransport(new TSocket("localhost", 24266));
+			TTransport trans = new TFramedTransport(new TSocket("localhost", 24264));
 			trans.open();
 			protocol = new TBinaryProtocol(trans);
 			client2 = new A1Management.Client(protocol);
