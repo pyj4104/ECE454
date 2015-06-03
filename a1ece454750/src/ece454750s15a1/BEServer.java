@@ -1,10 +1,7 @@
 //package ece454750s15a1;
-import ece454750s15a1.*;
+package ece454750s15a1;
 import java.util.concurrent.atomic.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadedSelectorServer.Args;
@@ -14,10 +11,10 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TTransportException;
 
-public class FEServer
+public class BEServer
 {
-	public static FEPasswordHandler phandler;
-	public static FEManagementHandler mhandler;
+	public static BEPasswordHandler phandler;
+	public static BEManagementHandler mhandler;
 	public static A1Password.Processor pproc;
 	public static A1Management.Processor mproc;
 	private static int pportNumber;
@@ -28,14 +25,11 @@ public class FEServer
 	private static ArrayList<Integer> seedPorts;
 	private volatile static int[] numReqRec;
 	private volatile static int[] numReqCom;
-	private volatile static List<BEJoinProtocol> activeBEs; //must ensure thread safety
-	private volatile static ConcurrentHashMap<BEJoinProtocol,Boolean> deadBEs;
 	
 	public static void main(String[] args)
 	{
 		try
 		{
-			System.out.println("FE starting");
 			for(int i = 0; i < (args.length ); i++)
 			{
 				System.out.println("Argument " + i + " is " + args[i]);
@@ -58,7 +52,7 @@ public class FEServer
 					}
 				}
 			}
-			//System.out.println(Arrays.toString(seedHosts.toArray(new String[seedHosts.size()])));
+			System.out.println(Arrays.toString(seedHosts.toArray(new String[seedHosts.size()])));
 			
 			numReqRec = new int[1];
 			numReqCom = new int[1];
@@ -66,14 +60,11 @@ public class FEServer
 			numReqRec[0] = 0;
 			numReqCom[0] = 0;
 			
-			activeBEs = Collections.synchronizedList(new ArrayList<BEJoinProtocol>());
-			deadBEs = new ConcurrentHashMap<BEJoinProtocol, Boolean>();
-			
 			Runnable password = new Runnable()
 			{
 				public void run()
 				{
-					phandler = new FEPasswordHandler(numReqRec, numReqCom);
+					phandler = new BEPasswordHandler(numReqRec, numReqCom);
 					pproc = new A1Password.Processor(phandler);
 					psimple(pproc, pportNumber, numCore);
 				}
@@ -83,7 +74,7 @@ public class FEServer
 			{
 				public void run()
 				{
-					mhandler = new FEManagementHandler(numReqRec, numReqCom, activeBEs, deadBEs);
+					mhandler = new BEManagementHandler(numReqRec, numReqCom);
 					mproc = new A1Management.Processor(mhandler);
 					msimple(mproc, mportNumber, numCore);
 				}

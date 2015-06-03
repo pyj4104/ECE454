@@ -1,7 +1,7 @@
 /* This is management implementation of the assignment1
 */
 //package ece454750s15a1;
-import ece454750s15a1.*;
+package ece454750s15a1;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.Date;
