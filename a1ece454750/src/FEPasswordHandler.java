@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.*;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class FEPasswordHandler implements A1Password.Iface
+public class FEPasswordHandler extends PasswordHandlerCommon
 {
 	private int[] localReqRec;
 	private int[] localReqCom;

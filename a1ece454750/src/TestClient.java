@@ -29,7 +29,7 @@ public class TestClient
 			List<String> QID;
 			PerfCounters returnStruct;
 			
-			TTransport trans = new TFramedTransport(new TSocket("localhost", 24264));
+			TTransport trans = new TFramedTransport(new TSocket("localhost", 24266));
 			trans.open();
 			protocol = new TBinaryProtocol(trans);
 			client2 = new A1Management.Client(protocol);
@@ -63,7 +63,7 @@ public class TestClient
 			int saltGenLogRounds;
 			boolean check;
 			
-			transport = new TFramedTransport(new TSocket("localhost", 14264));
+			transport = new TFramedTransport(new TSocket("localhost", 14266));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);
