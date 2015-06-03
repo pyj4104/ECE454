@@ -8,7 +8,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class FEPasswordHandler extends PasswordHandlerCommon
 {
-	public FEPasswordHandler(int[] numReqRec, int[] numReqCom)
+	public FEPasswordHandler(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		super(numReqRec, numReqCom);
 	}

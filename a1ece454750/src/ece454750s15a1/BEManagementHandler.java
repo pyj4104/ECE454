@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.*;
 
 public class BEManagementHandler extends ManagementHandlerCommon 
 {
-	public BEManagementHandler(int[] numReqRec, int[] numReqCom)
+	public BEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		super(numReqRec, numReqCom);
 	}

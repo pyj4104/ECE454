@@ -8,10 +8,10 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordHandlerCommon implements A1Password.Iface
 {
-	protected int[] localReqRec;
-	protected int[] localReqCom;
+	protected AtomicInteger localReqRec;
+	protected AtomicInteger localReqCom;
 
-	protected PasswordHandlerCommon(int[] numReqRec, int[] numReqCom)
+	protected PasswordHandlerCommon(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		localReqRec = numReqRec;
 		localReqCom = numReqCom;

@@ -15,7 +15,7 @@ public class FEManagementHandler extends ManagementHandlerCommon
 	private List<BEJoinProtocol> activeBEs;
 	private ConcurrentHashMap<BEJoinProtocol, Boolean> deadBEs;
 
-	public FEManagementHandler(int[] numReqRec, int[] numReqCom,
+	public FEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
 		List<BEJoinProtocol> alive, 
 		ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
 	{

@@ -8,16 +8,16 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class BEPasswordHandler extends PasswordHandlerCommon
 {
-	public BEPasswordHandler(int[] numReqRec, int[] numReqCom)
+	public BEPasswordHandler(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		super(numReqRec, numReqCom);
 	}
 
 	public String hashPassword(String password, int logRounds)
 	{
-		localReqRec[0]++;
+		localReqRec.addAndGet(1);
 		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
-		localReqCom[0]++;
+		localReqCom.addAndGet(1);
 		return hashed;
 	}
 
@@ -25,9 +25,9 @@ public class BEPasswordHandler extends PasswordHandlerCommon
 	{
 		boolean retVal;
 		
-		localReqRec[0]++;
+		localReqRec.addAndGet(1);
 		retVal = BCrypt.checkpw(candidate, hash);
-		localReqCom[0]++;
+		localReqCom.addAndGet(1);
 		
 		return retVal;
 	}

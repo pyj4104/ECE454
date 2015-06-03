@@ -13,10 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ManagementHandlerCommon implements A1Management.Iface
 {
 	protected Date startTime;
-	protected int[] localReqRec;
-	protected int[] localReqCom;
+	protected AtomicInteger localReqRec;
+	protected AtomicInteger localReqCom;
 
-	public ManagementHandlerCommon(int[] numReqRec, int[] numReqCom)
+	public ManagementHandlerCommon(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		startTime = new Date();
 		localReqRec = numReqRec;
@@ -30,8 +30,8 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		returnStruct = new PerfCounters();
 		
 		returnStruct.numSecondsUp = (int)((new Date().getTime() - this.startTime.getTime())) / 1000;
-		returnStruct.numRequestsReceived = localReqRec[0];
-		returnStruct.numRequestsCompleted = localReqCom[0];
+		returnStruct.numRequestsReceived = localReqRec.get();
+		returnStruct.numRequestsCompleted = localReqCom.get();
 		return returnStruct;
 	}
 	
