@@ -37,8 +37,8 @@ service A1Password
 
 service A1Management
 {
-   void Join(1:BEJoinProtocol joinProto),
-   void Gossip(1:list<BEJoinProtocol> listOfBE),
+   //void Join(1:BEJoinProtocol joinProto),
+   //void Gossip(1:list<BEJoinProtocol> listOfBE),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()
 }

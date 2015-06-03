@@ -23,10 +23,10 @@
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
-  <property name="BE1" value="-host ecelinux1 -pport 14264 -mport 24264 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
-  <property name="BE2" value="-host ecelinux1 -pport 14265 -mport 24265 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
-  <property name="FE1" value="-host ecelinux1 -pport 14266 -mport 24266 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
-  <property name="FE2" value="-host ecelinux1 -pport 14267 -mport 24267 -ncores 2 -seeds  ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="BE1" value="-host ecelinux1 -pport 14264 -mport 24264 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="BE2" value="-host ecelinux1 -pport 14265 -mport 24265 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="FE1" value="-host ecelinux1 -pport 14266 -mport 24266 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="FE2" value="-host ecelinux1 -pport 14267 -mport 24267 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
 
   <path id="libs.classpath">
     <fileset dir="../lib">
@@ -53,6 +53,7 @@
   <target name="compile" depends="init, generate">
     <javac source="1.6" target="1.6" srcdir="${gen}" destdir="${build}" includeantruntime="false" classpathref="libs.classpath" />
     <javac source="1.6" target="1.6" srcdir="${src}" destdir="${build}" includeantruntime="false" classpathref="build.classpath" />
+    <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
   </target>
 
   <target name="test" depends="ece454750s15a1" />
