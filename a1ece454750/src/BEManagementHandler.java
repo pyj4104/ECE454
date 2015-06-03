@@ -9,17 +9,21 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.*;
 
-public class BEManagementHandler extends ManagementHandlerCommon
+public class BEManagementHandler extends ManagementHandlerCommon 
 {
-	private Date _startTime;
-	private int[] localReqRec;
-	private int[] localReqCom;
-	
 	public BEManagementHandler(int[] numReqRec, int[] numReqCom)
 	{
-		this._startTime = new Date();
-		localReqRec = numReqRec;
-		localReqCom = numReqCom;
+		super(numReqRec, numReqCom);
+	}
+
+	public PerfCounters getPerfCounters()
+	{
+		return super.getPerfCounters();
+	}
+	
+	public List<String> getGroupMembers()
+	{
+		return super.getGroupMembers();
 	}
 }
 

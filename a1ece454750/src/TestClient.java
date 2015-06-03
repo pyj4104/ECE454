@@ -29,13 +29,14 @@ public class TestClient
 			List<String> QID;
 			PerfCounters returnStruct;
 			
-			TTransport trans = new TFramedTransport(new TSocket("localhost", 24266));
+			System.out.println("hi");
+
+			TTransport trans = new TFramedTransport(new TSocket("localhost", 24264));
 			trans.open();
 			protocol = new TBinaryProtocol(trans);
 			client2 = new A1Management.Client(protocol);
 			QID = client2.getGroupMembers();
 			returnStruct = client2.getPerfCounters();
-			System.out.println("hi");
 			System.out.println(Arrays.toString(QID.toArray()));
 			System.out.println(returnStruct.numSecondsUp);
 			System.out.println(returnStruct.numRequestsReceived);
@@ -63,7 +64,7 @@ public class TestClient
 			int saltGenLogRounds;
 			boolean check;
 			
-			transport = new TFramedTransport(new TSocket("localhost", 14266));
+			transport = new TFramedTransport(new TSocket("localhost", 14264));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);

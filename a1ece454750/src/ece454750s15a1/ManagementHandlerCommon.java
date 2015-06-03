@@ -12,19 +12,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ManagementHandlerCommon implements A1Management.Iface
 {
-	private Date _startTime;
-	private int[] localReqRec;
-	private int[] localReqCom;
-	private List<BEJoinProtocol> activeBEs;
-	private ConcurrentHashMap<BEJoinProtocol, Boolean> deadBEs;
-	
+	protected Date startTime;
+	protected int[] localReqRec;
+	protected int[] localReqCom;
+
+	public ManagementHandlerCommon(int[] numReqRec, int[] numReqCom)
+	{
+		startTime = new Date();
+		localReqRec = numReqRec;
+		localReqCom = numReqCom;
+	}
+
 	public PerfCounters getPerfCounters()
 	{
 		PerfCounters returnStruct;
 		
 		returnStruct = new PerfCounters();
 		
-		returnStruct.numSecondsUp = (int)((new Date().getTime() - this._startTime.getTime())) / 1000;
+		returnStruct.numSecondsUp = (int)((new Date().getTime() - this.startTime.getTime())) / 1000;
 		returnStruct.numRequestsReceived = localReqRec[0];
 		returnStruct.numRequestsCompleted = localReqCom[0];
 		return returnStruct;
@@ -41,7 +46,6 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		
 		return QID;
 	}
-	
 	
 	public void join(BEJoinProtocol joinProto)
 	{

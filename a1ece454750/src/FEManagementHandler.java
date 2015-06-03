@@ -10,23 +10,28 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FEManagementHandler extends ManagementHandlerCommon
+public class FEManagementHandler extends ManagementHandlerCommon 
 {
-	private Date _startTime;
-	private int[] localReqRec;
-	private int[] localReqCom;
 	private List<BEJoinProtocol> activeBEs;
 	private ConcurrentHashMap<BEJoinProtocol, Boolean> deadBEs;
-	
+
 	public FEManagementHandler(int[] numReqRec, int[] numReqCom,
 		List<BEJoinProtocol> alive, 
 		ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
 	{
-		this._startTime = new Date();
-		localReqRec = numReqRec;
-		localReqCom = numReqCom;
+		super(numReqRec, numReqCom);
 		activeBEs = alive;
 		deadBEs = dead;
+	}
+	
+	public PerfCounters getPerfCounters()
+	{
+		return super.getPerfCounters();
+	}
+	
+	public List<String> getGroupMembers()
+	{
+		return super.getGroupMembers();
 	}
 	
 	public void join(List<BEJoinProtocol> alive)

@@ -8,26 +8,23 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordHandlerCommon implements A1Password.Iface
 {
-	private int[] localReqRec;
-	private int[] localReqCom;
-	
+	protected int[] localReqRec;
+	protected int[] localReqCom;
+
+	protected PasswordHandlerCommon(int[] numReqRec, int[] numReqCom)
+	{
+		localReqRec = numReqRec;
+		localReqCom = numReqCom;
+	}
+
 	public String hashPassword(String password, int logRounds)
 	{
-		localReqRec[0]++;
-		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
-		localReqCom[0]++;
-		return hashed;
+		return "dummy";
 	}
 
 	public boolean checkPassword(String candidate, String hash)
 	{
-		boolean retVal;
-		
-		localReqRec[0]++;
-		retVal = BCrypt.checkpw(candidate, hash);
-		localReqCom[0]++;
-		
-		return retVal;
+		return true;
 	}
 }
 

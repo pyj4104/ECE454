@@ -8,13 +8,9 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class BEPasswordHandler extends PasswordHandlerCommon
 {
-	private int[] localReqRec;
-	private int[] localReqCom;
-	
 	public BEPasswordHandler(int[] numReqRec, int[] numReqCom)
 	{
-		localReqRec = numReqRec;
-		localReqCom = numReqCom;
+		super(numReqRec, numReqCom);
 	}
 
 	public String hashPassword(String password, int logRounds)
