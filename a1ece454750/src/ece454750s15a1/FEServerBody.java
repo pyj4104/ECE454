@@ -33,7 +33,7 @@ public class FEServerBody extends ServerCommon
 			{
 				public void run()
 				{
-					phandler = new FEPasswordHandler(numReqRec, numReqCom);
+					phandler = new FEPasswordHandler(numReqRec, numReqCom, activeBEs, deadBEs);
 					pproc = new A1Password.Processor(phandler);
 					psimple(pproc);
 				}
@@ -51,8 +51,6 @@ public class FEServerBody extends ServerCommon
 
 			new Thread(password).start();
 			new Thread(management).start();
-
-			super.Report(false);
 		}
 		catch (Exception X)
 		{

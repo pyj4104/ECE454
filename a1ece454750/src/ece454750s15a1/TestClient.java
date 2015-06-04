@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Arrays;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TSSLTransportFactory.TSSLTransportParameters;
@@ -23,25 +24,7 @@ public class TestClient
 		try
 		{
 			simple();
-			
-			A1Management.Client client2;
-			TProtocol protocol;
-			List<String> QID;
-			PerfCounters returnStruct;
-			
-			System.out.println("hi");
-
-			TTransport trans = new TFramedTransport(new TSocket("localhost", 24264));
-			trans.open();
-			protocol = new TBinaryProtocol(trans);
-			client2 = new A1Management.Client(protocol);
-			QID = client2.getGroupMembers();
-			returnStruct = client2.getPerfCounters();
-			System.out.println(Arrays.toString(QID.toArray()));
-			System.out.println(returnStruct.numSecondsUp);
-			System.out.println(returnStruct.numRequestsReceived);
-			System.out.println(returnStruct.numRequestsCompleted);
-			trans.close();
+			check();
 		}
 		catch(Exception X)
 		{
@@ -49,6 +32,34 @@ public class TestClient
 		}
 		
 		//simple();
+	}
+
+	public static void check() throws TTransportException, TException
+	{
+		m("localhost", 24264);
+		m("localhost", 24265);
+		m("localhost", 34264);
+	}
+
+	public static void m(String host, int port) throws TTransportException, TException
+	{
+		TTransport trans;
+		A1Management.Client client2;
+		TProtocol protocol;
+		List<String> QID;
+		PerfCounters returnStruct;
+		
+		trans = new TFramedTransport(new TSocket(host, port));
+		trans.open();
+		protocol = new TBinaryProtocol(trans);
+		client2 = new A1Management.Client(protocol);
+		QID = client2.getGroupMembers();
+		returnStruct = client2.getPerfCounters();
+		System.out.println(Arrays.toString(QID.toArray()));
+		System.out.println(returnStruct.numSecondsUp);
+		System.out.println(returnStruct.numRequestsReceived);
+		System.out.println(returnStruct.numRequestsCompleted);
+		trans.close();
 	}
 	
 	public static void simple()
@@ -64,13 +75,13 @@ public class TestClient
 			int saltGenLogRounds;
 			boolean check;
 			
-			transport = new TFramedTransport(new TSocket("localhost", 14264));
+			transport = new TFramedTransport(new TSocket("localhost", 14266));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);
 
 			password = "David is so good that";
-			saltGenLogRounds = 12;
+			saltGenLogRounds = 10;
 			
 			hashed = hashPass(client, password, saltGenLogRounds);
 			check = checkPass(client, password, hashed);

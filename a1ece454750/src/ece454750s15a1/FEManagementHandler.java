@@ -58,11 +58,8 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		{
 			X.printStackTrace();
 		}
-		finally
-		{
-			return false;
-		}
-		
+
+		return false;
 	}
 	
 	/*public void leave(ConcurrentHashMap<BEJoinProtocol, Boolean> dead)

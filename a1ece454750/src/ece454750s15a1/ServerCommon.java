@@ -148,7 +148,9 @@ public class ServerCommon
 			isSuccess = isSuccess || TryConnection(selfInfo, i % seedHosts.size());
 			if(!isSuccess)
 			{
-				System.out.println("Failed to connect. Attempting the report procedure again within 1 second.");
+				System.out.print("Reporting to " + seedHosts.get(i % seedHosts.size()) + ":");
+				System.out.println(seedPorts.get(i % seedHosts.size()) +
+					" Failed. Attempting the report procedure again within 1 second.");
 				System.out.println("3");
 				Thread.sleep(1000);
 				System.out.println("2");
@@ -157,6 +159,11 @@ public class ServerCommon
 				Thread.sleep(1000);
 				System.out.println("Reporting......");
 			}
+		}
+
+		if(isSuccess)
+		{
+			System.out.println("Successfully connected to a FE seed node.");
 		}
 
 		return isSuccess;
@@ -177,7 +184,7 @@ public class ServerCommon
 			client = new A1Management.Client(protocol);
 
 			isSuccess = client.join(selfInfo);
-		
+
 			transport.close();
 
 			return isSuccess;
