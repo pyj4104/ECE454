@@ -23,7 +23,8 @@
   <property name="src" location="src" />
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
-  <property name="BE1" value="-host ecelinux1 -pport 14264 -mport 24264 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
+  <property name="package" value="ece454750s15a1." />
+  <property name="BE1" value="-host localhost -pport 14264 -mport 24264 -ncores 2 -seeds localhost:34264,localhost:44264,localhost:54264" />
   <property name="BE2" value="-host ecelinux1 -pport 14265 -mport 24265 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
   <property name="FE1" value="-host ecelinux1 -pport 14266 -mport 24266 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
   <property name="FE2" value="-host ecelinux1 -pport 14267 -mport 24267 -ncores 2 -seeds ecelinux1:34264,ecelinux1:44264,ecelinux1:54264" />
@@ -31,7 +32,6 @@
   <path id="libs.classpath">
     <fileset dir="../lib">
       <include name="*.jar" />
-      <exclude name="-test.jar" />
     </fileset>
   </path>
   <path id="build.classpath">
@@ -62,7 +62,7 @@
   <target name="ece454750s15a1" description="Run the ece454750s15a1" depends="compile" >
     <jar jarfile="ece454750s15a1.jar" basedir="${build}"/>
     <parallel>
-      <java classname="BEServer" fork="true" timeout="10000"
+      <java classname="${package}BEServer" fork="true" timeout="10000"
         classpathref="ece454750s15a1.classpath" failonerror="false" output="${build}/log/ece454750s15a1.log">
       </java>
       <sequential>
@@ -93,28 +93,28 @@
   </target>
   <target name="beserver" description="Run a ece454750s15a1 BE server" depends="compile">
   <echo>ece454750s15a1 BEServer:</echo>
-      <java classname="BEServer" fork="true"
+      <java classname="${package}BEServer" fork="true"
         classpathref="ece454750s15a1.classpath" failonerror="false" >
       <arg line="${BE1}"/>
       </java>
   </target>
   <target name="beserver2" description="Run a ece454750s15a1 BE server" depends="compile">
   <echo>ece454750s15a1 BEServer2:</echo>
-      <java classname="BEServer" fork="true"
+      <java classname="${package}BEServer" fork="true"
         classpathref="ece454750s15a1.classpath" failonerror="false" >
       <arg line="${BE2}"/>
       </java>
   </target>
   <target name="feserver" description="Run a ece454750s15a1 FE server" depends="compile">
   <echo>ece454750s15a1 FEServer:</echo>
-      <java classname="FEServer" fork="true"
+      <java classname="${package}FEServer" fork="true"
         classpathref="ece454750s15a1.classpath" failonerror="false" >
       <arg line="${FE1}"/>
       </java>
   </target>
   <target name="feserver2" description="Run a ece454750s15a1 FE server" depends="compile">
   <echo>ece454750s15a1 FEServer2:</echo>
-      <java classname="FEServer" fork="true"
+      <java classname="${package}FEServer" fork="true"
         classpathref="ece454750s15a1.classpath" failonerror="false" >
       <arg line="${FE2}"/>
       </java>
@@ -127,3 +127,4 @@
   </target>
 
 </project>
+
