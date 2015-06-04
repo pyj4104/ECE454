@@ -47,12 +47,22 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		return QID;
 	}
 	
-	public void join(BEJoinProtocol joinProto)
+	public boolean join(JoinProtocol joinProto)
 	{
+		return true;
 	}
 	
-	public void gossip(List<BEJoinProtocol> listOfBE)
+	public void gossip(List<JoinProtocol> listOfBE)
 	{
+	}
+
+	public static String generateKeyString(JoinProtocol proto)
+	{
+		String key;
+
+		key = proto.host + ":" + proto.pportNum + ":" + proto.mportNum;
+
+		return key;
 	}
 }
 

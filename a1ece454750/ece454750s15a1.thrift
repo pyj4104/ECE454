@@ -20,7 +20,7 @@ struct GroupMembers
   1: list<string> groupMem
 }
 
-struct BEJoinProtocol
+struct JoinProtocol
 {
   1: string host
   2: i32 pportNum
@@ -37,8 +37,8 @@ service A1Password
 
 service A1Management
 {
-   void join(1:BEJoinProtocol joinProto),
-   //void gossip(1:list<BEJoinProtocol> listOfBE),
+   bool join(1:JoinProtocol joinProto),
+   //void gossip(1:list<JoinProtocol> listOfBE),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()
 }

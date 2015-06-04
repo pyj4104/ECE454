@@ -17,8 +17,8 @@ public class FEServerBody extends ServerCommon
 {
 	public static FEPasswordHandler phandler;
 	public static FEManagementHandler mhandler;
-	private volatile static List<BEJoinProtocol> activeBEs; //must ensure thread safety
-	private volatile static ConcurrentHashMap<BEJoinProtocol,Boolean> deadBEs;
+	private volatile static List<JoinProtocol> activeBEs; //must ensure thread safety
+	private volatile static ConcurrentHashMap<String, JoinProtocol> deadBEs;
 	
 	public FEServerBody(String[] args)
 	{
@@ -26,8 +26,8 @@ public class FEServerBody extends ServerCommon
 
 		try
 		{
-			activeBEs = Collections.synchronizedList(new ArrayList<BEJoinProtocol>());
-			deadBEs = new ConcurrentHashMap<BEJoinProtocol, Boolean>();
+			activeBEs = Collections.synchronizedList(new ArrayList<JoinProtocol>());
+			deadBEs = new ConcurrentHashMap<String, JoinProtocol>();
 			
 			Runnable password = new Runnable()
 			{
@@ -51,6 +51,8 @@ public class FEServerBody extends ServerCommon
 
 			new Thread(password).start();
 			new Thread(management).start();
+
+			super.Report(false);
 		}
 		catch (Exception X)
 		{

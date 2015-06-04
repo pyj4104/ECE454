@@ -12,12 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FEManagementHandler extends ManagementHandlerCommon 
 {
-	private List<BEJoinProtocol> activeBEs;
-	private ConcurrentHashMap<BEJoinProtocol, Boolean> deadBEs;
+	private List<JoinProtocol> activeBEs;
+	private ConcurrentHashMap<String, JoinProtocol> deadBEs;
 
 	public FEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
-		List<BEJoinProtocol> alive, 
-		ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
+		List<JoinProtocol> alive, 
+		ConcurrentHashMap<String, JoinProtocol> dead)
 	{
 		super(numReqRec, numReqCom);
 		activeBEs = alive;
@@ -34,18 +34,40 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		return super.getGroupMembers();
 	}
 	
-	public void join(List<BEJoinProtocol> alive)
+	public boolean join(JoinProtocol newNode)
 	{
-		activeBEs.addAll(alive);
-		if(deadBEs.containsKey(alive.get(0)))
+		try
 		{
-			deadBEs.remove(alive.get(0));
+			String key = generateKeyString(newNode);
+
+			synchronized(activeBEs)
+			{
+				for(int i = 0; i < newNode.numCore; i++)
+				{
+					activeBEs.add(newNode);
+				}
+				if(deadBEs.containsKey(key))
+				{
+					deadBEs.remove(key);
+				}
+			}
+
+			return true;
 		}
+		catch(Exception X)
+		{
+			X.printStackTrace();
+		}
+		finally
+		{
+			return false;
+		}
+		
 	}
 	
-	public void leave(ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
+	/*public void leave(ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
 	{
-		deadBEs.putAll(dead);
-	}
+		deadBEs.remove(super.generateKeyString(newNode));
+	}*/
 }
 

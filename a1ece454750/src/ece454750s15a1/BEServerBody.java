@@ -43,6 +43,12 @@ public class BEServerBody extends ServerCommon
 
 			new Thread(password).start();
 			new Thread(management).start();
+
+			if (!super.Report(true))
+			{
+				System.out.println("No seed is up.");
+				System.exit(0);
+			}
 		}
 		catch (Exception X)
 		{
