@@ -24,10 +24,10 @@
   <property name="gen" location="gen-java" />
   <property name="build" location="build" />
   <property name="package" value="ece454750s15a1." />
-  <property name="BE1" value="-host localhost -pport 14264 -mport 24264 -ncores 2 -seeds localhost:34264,localhost:44264,localhost:54264" />
-  <property name="BE2" value="-host localhost -pport 14265 -mport 24265 -ncores 4 -seeds localhost:34264,localhost:44264,localhost:54264" />
-  <property name="FE1" value="-host localhost -pport 14266 -mport 34264 -ncores 2 -seeds localhost:34264,localhost:44264,localhost:54264" />
-  <property name="FE2" value="-host localhost -pport 14267 -mport 24267 -ncores 2 -seeds localhost:34264,localhost:44264,localhost:54264" />
+  <property name="BE1" value="-host eceubuntu -pport 14264 -mport 24264 -ncores 2 -seeds eceubuntu:34264,eceubuntu:44264,eceubuntu:54264" />
+  <property name="BE2" value="-host eceubuntu -pport 14265 -mport 24265 -ncores 4 -seeds eceubuntu:34264,eceubuntu:44264,eceubuntu:54264" />
+  <property name="FE1" value="-host eceubuntu -pport 14266 -mport 34264 -ncores 2 -seeds eceubuntu:34264,eceubuntu:44264,eceubuntu:54264" />
+  <property name="FE2" value="-host eceubuntu -pport 14267 -mport 24267 -ncores 2 -seeds eceubuntu:34264,eceubuntu:44264,eceubuntu:54264" />
 
   <path id="libs.classpath">
     <fileset dir="../lib">
