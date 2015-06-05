@@ -40,9 +40,10 @@ struct FEJoinResponse
 struct GossippingProto
 {
   1: bool isDead
-  2: string key
+  2: map<string, JoinProtocol> eventServer
   3: i64 time
-  4: int16 eventLife
+  4: i32 eventLife
+  5: bool isBE
 }
 
 exception ServiceUnavailableException

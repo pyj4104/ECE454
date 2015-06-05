@@ -18,15 +18,18 @@ import org.mindrot.jbcrypt.BCrypt;
 public class FEPasswordHandler extends PasswordHandlerCommon
 {
 	private List<String> activeBEs;
+	private List<GossippingProto> logger;
 	private ConcurrentHashMap<String, JoinProtocol> aliveBEs;
 
 	public FEPasswordHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
 		List<String> active, 
-		ConcurrentHashMap<String, JoinProtocol> alive)
+		ConcurrentHashMap<String, JoinProtocol> alive,
+		List<GossippingProto> eventLogger)
 	{
 		super(numReqRec, numReqCom);
 		activeBEs = active;
 		aliveBEs = alive;
+		logger = eventLogger;
 	}
 
 	public String hashPassword(String password, int logRounds) //throws ServiceUnavailableException
@@ -109,7 +112,10 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		catch(TTransportException refused)
 		{
 			aliveBEs.remove(key);
-			activeBEs.remove(bEUsed);
+			synchronized(activeBEs)
+			{
+				activeBEs.remove(bEUsed);
+			}
 			return ProcessRequest(com);
 		}
 		catch(Exception X)

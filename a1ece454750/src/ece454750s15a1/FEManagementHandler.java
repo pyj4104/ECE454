@@ -13,18 +13,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FEManagementHandler extends ManagementHandlerCommon 
 {
 	private List<String> activeBEs;
+	private List<GossippingProto> logger;
 	private ConcurrentHashMap<String, JoinProtocol> aliveBEs;
 	private ConcurrentHashMap<String, JoinProtocol> aliveFEs;
 
 	public FEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
 		List<String> active, 
 		ConcurrentHashMap<String, JoinProtocol> aliveBE,
-		ConcurrentHashMap<String, JoinProtocol> aliveFE)
+		ConcurrentHashMap<String, JoinProtocol> aliveFE,
+		List<GossippingProto> eventLogger)
 	{
 		super(numReqRec, numReqCom);
 		activeBEs = active;
 		aliveBEs = aliveBE;
 		aliveFEs = aliveFE;
+		logger = eventLogger;
 	}
 	
 	public PerfCounters getPerfCounters()
@@ -41,8 +44,13 @@ public class FEManagementHandler extends ManagementHandlerCommon
 	{
 		try
 		{
-			String key = generateKeyString(newNode);
+			GossippingProto event;
+			String key;
+			
+			event = new GossippingProto();
+			key = generateKeyString(newNode);
 			newNode.upTime = new Date().getTime();
+
 			synchronized(activeBEs)
 			{
 				for(int i = 0; i < newNode.numCore; i++)
@@ -53,6 +61,17 @@ public class FEManagementHandler extends ManagementHandlerCommon
 				{
 					aliveBEs.put(key, newNode);
 				}
+			}
+
+			event.isDead = false;
+			event.eventServer.put(key, aliveBEs.get(key));
+			event.time = new Date().getTime();
+			event.eventLife = 10;
+			event.isBE = true;
+
+			synchronized(logger)
+			{
+				logger.add(event);
 			}
 
 			return true;
@@ -69,13 +88,15 @@ public class FEManagementHandler extends ManagementHandlerCommon
 	{
 		try
 		{
+			GossippingProto event;
 			FEJoinResponse retVal;
 			String key;
 
+			event = new GossippingProto();
 			key = generateKeyString(newNode);
 			newNode.upTime = new Date().getTime();
-			
-			synchronized(activeBEs)
+
+			synchronized(aliveFEs)
 			{
 				if(!aliveFEs.containsKey(key))
 				{
@@ -83,15 +104,22 @@ public class FEManagementHandler extends ManagementHandlerCommon
 				}
 			}
 
+			event.isDead = false;
+			event.eventServer.put(key, aliveBEs.get(key));
+			event.time = new Date().getTime();
+			event.eventLife = 10;
+			event.isBE = false;
+
+			synchronized(logger)
+			{
+				logger.add(event);
+			}
+
 			retVal = new FEJoinResponse();
 
 			retVal.activeBEs = activeBEs;
 			retVal.aliveBEs = aliveBEs;
 			retVal.aliveFEs = aliveFEs;
-
-			System.out.println(activeBEs);
-			System.out.println(aliveBEs);
-			System.out.println(aliveFEs);
 
 			return retVal;
 		}
