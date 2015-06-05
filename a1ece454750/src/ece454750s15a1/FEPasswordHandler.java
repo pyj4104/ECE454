@@ -29,7 +29,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		deadBEs = dead;
 	}
 
-	public String hashPassword(String password, int logRounds) throws ServiceUnavailableException
+	public String hashPassword(String password, int logRounds) //throws ServiceUnavailableException
 	{
 		CommandStructure command;
 		ReturnStructure result;
@@ -38,91 +38,83 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 
 		localReqRec.addAndGet(1);
 		result = ProcessRequest(command);
-		if(result.error == true)
-		{
-			throw new ServiceUnavailableException(result.errMsg);
-		}
 		localReqCom.addAndGet(1);
-		return result.hash;
+		return result.hash;		
 	}
 
-	public boolean checkPassword(String candidate, String hash) throws ServiceUnavailableException
+	public boolean checkPassword(String candidate, String hash) //throws ServiceUnavailableException
 	{
 		CommandStructure command;
 		ReturnStructure result;
 
-		command = new CommandStructure("check", hash, candidate);
+		command = new CommandStructure("check", candidate, hash);
 
 		localReqRec.addAndGet(1);
 		result = ProcessRequest(command);
 		localReqCom.addAndGet(1);
-
-		if(result.error == true)
-		{
-			throw new ServiceUnavailableException(result.errMsg);
-		}
-
 		return result.check;
 	}
 
-	private ReturnStructure ProcessRequest(CommandStructure com) throws ServiceUnavailableException
+	private ReturnStructure ProcessRequest(CommandStructure com) //throws ServiceUnavailableException
 	{
-		ReturnStructure retVal;
+		/*ReturnStructure retVal;
 		String key;
 		int bEUsed;
 
-		bEUsed = 0;
-		key = "";
+		bEUsed = new Random().nextInt(activeBEs.size());
+		key = super.generateKeyString(activeBEs.get(bEUsed));
 
-		if (activeBEs.isEmpty())
-		{
-			retVal = new ReturnStructure(true, "All back end server is down. Service is unavailable.");
-			return retVal;
-		}
+		retVal = Execute(com, activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum);
+
+		return retVal;*/
+
+		TTransport transport;
+		TProtocol protocol;
+		A1Password.Client client;
+		ReturnStructure retVal;
+		int bEUsed;
+
+		//Choose which BE it will use
+		bEUsed = new Random().nextInt(activeBEs.size());
+		System.out.println(bEUsed);
 
 		try
 		{
-			while(!activeBEs.isEmpty())
-			{
-				bEUsed = new Random().nextInt(activeBEs.size());
-				key = super.generateKeyString(activeBEs.get(bEUsed));
+			transport = new TFramedTransport(new TSocket(activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum));
+			transport.open();
+			protocol = new TBinaryProtocol(transport);
+			client = new A1Password.Client(protocol);
 
-				//Choose which BE it will use
-				if(deadBEs.containsKey(key))
-				{
-					activeBEs.remove(bEUsed);
-				}
-				else
-				{
-					break;
-				}
+			if (com.command.equals("hash"))
+			{
+				retVal = new ReturnStructure(client.hashPassword(com.password, com.logRounds));
+			}
+			else if (com.command.equals("check"))
+			{
+				retVal = new ReturnStructure(client.checkPassword(com.candidate, com.hash));
+			}
+			else
+			{
+				retVal = new ReturnStructure(true, "Error!");
 			}
 
-			retVal = Execute(com, activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum);
+			transport.close();
+
+			return retVal;
 		}
-		catch(TTransportException X)
+		catch(TTransportException refused)
 		{
-			synchronized(activeBEs)
-			{
-				if(!deadBEs.containsKey(key))
-				{
-					deadBEs.put(key, activeBEs.get(bEUsed));
-				}
 
-				activeBEs.remove(bEUsed);
-			}
-
-			retVal = ProcessRequest(com);
 		}
-		catch(TException ex)
+		catch(Exception X)
 		{
-			retVal = new ReturnStructure(true, "Error!");
+			X.printStackTrace();
 		}
 
-		return retVal;
+		return null;
 	}
 
-	private ReturnStructure Execute(CommandStructure com, String host, int pport) throws TTransportException, ServiceUnavailableException
+	private ReturnStructure Execute(CommandStructure com, String host, int pport) //throws TTransportException, ServiceUnavailableException
 	{
 		TTransport transport;
 		TProtocol protocol;
@@ -148,19 +140,21 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 			{
 				retVal = new ReturnStructure(true, "Error!");
 			}
-			
+
 			transport.close();
 
 			return retVal;
 		}
 		catch(TTransportException X)
 		{
-			throw new TTransportException("Bad!!!");
+			//throw new TTransportException("Bad!!!");
 		}
 		catch(TException X)
 		{
-			return new ReturnStructure(true, "Error!");
+			//return new ReturnStructure(true, "Error!");
 		}
+
+		return null;
 	}
 
 	class CommandStructure

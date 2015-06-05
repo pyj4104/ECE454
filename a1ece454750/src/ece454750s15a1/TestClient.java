@@ -24,7 +24,7 @@ public class TestClient
 		try
 		{
 			simple();
-			//check();
+			check();
 		}
 		catch(Exception X)
 		{
@@ -37,7 +37,7 @@ public class TestClient
 	public static void check() throws TTransportException, TException
 	{
 		m("localhost", 24264);
-		m("localhost", 24265);
+		//m("localhost", 24265);
 		m("localhost", 34264);
 	}
 

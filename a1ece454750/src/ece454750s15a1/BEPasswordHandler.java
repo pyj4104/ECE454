@@ -13,7 +13,7 @@ public class BEPasswordHandler extends PasswordHandlerCommon
 		super(numReqRec, numReqCom);
 	}
 
-	public String hashPassword(String password, int logRounds) throws ServiceUnavailableException
+	public String hashPassword(String password, int logRounds) //throws ServiceUnavailableException
 	{
 		localReqRec.addAndGet(1);
 		String hashed = BCrypt.hashpw(password, BCrypt.gensalt(logRounds));
@@ -21,7 +21,7 @@ public class BEPasswordHandler extends PasswordHandlerCommon
 		return hashed;
 	}
 
-	public boolean checkPassword(String candidate, String hash) throws ServiceUnavailableException
+	public boolean checkPassword(String candidate, String hash) //throws ServiceUnavailableException
 	{
 		boolean retVal;
 		
