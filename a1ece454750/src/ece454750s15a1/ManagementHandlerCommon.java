@@ -26,6 +26,10 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		return null;
 	}
 
+	public void gossip(List<GossippingProto> listOfBE)
+	{
+	}
+	
 	public ManagementHandlerCommon(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
 		startTime = new Date();
@@ -57,10 +61,6 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		return QID;
 	}
 	
-	public void gossip(List<JoinProtocol> listOfBE)
-	{
-	}
-
 	public static String generateKeyString(JoinProtocol proto)
 	{
 		String key;

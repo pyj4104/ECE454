@@ -88,7 +88,14 @@
     <echo>ece454750s15a1 client:</echo>
     <java classname="TestClient"
       classpathref="ece454750s15a1.classpath" failonerror="true">
-      <arg line="simple"/>
+      <arg line="${FE1}"/>
+    </java>
+  </target>
+  <target name="client2" description="Run a ece454750s15a1 client" depends="compile">
+    <echo>ece454750s15a1 client2:</echo>
+    <java classname="TestClient"
+      classpathref="ece454750s15a1.classpath" failonerror="true">
+      <arg line="${FE2}"/>
     </java>
   </target>
   <target name="beserver" description="Run a ece454750s15a1 BE server" depends="compile">

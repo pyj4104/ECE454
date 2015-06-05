@@ -26,6 +26,7 @@ public class ServerCommon
 	protected static ArrayList<Integer> seedPorts;
 	protected static AtomicInteger numReqRec;
 	protected static AtomicInteger numReqCom;
+	protected static String id;
 
 	public ServerCommon(String[] args)
 	{
@@ -33,6 +34,7 @@ public class ServerCommon
 		numReqCom = new AtomicInteger();
 
 		ParseArg(args);
+		id = hostString + ":" + pportNumber + ":" + mportNumber;
 	}
 	
 	public void psimple(A1Password.Processor proc)

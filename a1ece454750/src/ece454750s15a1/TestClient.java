@@ -13,14 +13,32 @@ import org.apache.thrift.protocol.TProtocol;
 
 public class TestClient
 {
+	public static String hostString;
+	public static int pportNumber;
+	public static int mportNumber;
 	public static void main(String[] args)
 	{
 		if (args.length != 1 || !args[0].contains("simple"))
 		{
 			System.out.println("Please enter 'simple' ");
-			System.exit(0);
+			//System.exit(0);
 		}
-		
+		for(int i = 0; i < (args.length ); i++)
+		{
+			System.out.println("Argument " + i + " is " + args[i]);
+			if(args[i].equals("-host"))
+			{
+				hostString = args[i+1];
+			}
+			else if(args[i].equals("-pport"))
+			{
+				pportNumber = Integer.parseInt(args[i+1]);
+			}
+			else if(args[i].equals("-mport"))
+			{
+				mportNumber = Integer.parseInt(args[i+1]);
+			}
+		}
 		try
 		{
 			simple();
@@ -75,7 +93,7 @@ public class TestClient
 			int saltGenLogRounds;
 			boolean check;
 			
-			transport = new TFramedTransport(new TSocket("localhost", 14266));
+			transport = new TFramedTransport(new TSocket(hostString, pportNumber));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);

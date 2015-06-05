@@ -40,10 +40,11 @@ struct FEJoinResponse
 struct GossippingProto
 {
   1: bool isDead
-  2: map<string, JoinProtocol> eventServer
-  3: i64 time
-  4: i32 eventLife
-  5: bool isBE
+  2: string key
+  3: JoinProtocol eventServer
+  4: i64 time
+  5: i32 eventLife
+  6: bool isBE
 }
 
 exception ServiceUnavailableException
@@ -63,7 +64,7 @@ service A1Management
 {
    bool join(1:JoinProtocol joinProto),
    FEJoinResponse feJoin(1:JoinProtocol joinProto),
-   //void gossip(1:list<GossippingProto> message),
+   void gossip(1:list<GossippingProto> message),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()
 }

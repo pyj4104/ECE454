@@ -64,7 +64,8 @@ public class FEManagementHandler extends ManagementHandlerCommon
 			}
 
 			event.isDead = false;
-			event.eventServer.put(key, aliveBEs.get(key));
+			event.key = key;
+			event.eventServer = aliveBEs.get(key);
 			event.time = new Date().getTime();
 			event.eventLife = 10;
 			event.isBE = true;
@@ -105,7 +106,8 @@ public class FEManagementHandler extends ManagementHandlerCommon
 			}
 
 			event.isDead = false;
-			event.eventServer.put(key, aliveBEs.get(key));
+			event.key = key;
+			event.eventServer = aliveBEs.get(key);
 			event.time = new Date().getTime();
 			event.eventLife = 10;
 			event.isBE = false;
@@ -129,6 +131,65 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		}
 
 		return null;
+	}
+
+	public void gossip(List<GossippingProto> message)
+	{
+		System.out.println(message);
+		GossippingProto event;
+		ArrayList<GossippingProto> msg;
+
+		msg = new ArrayList<GossippingProto>(message);
+
+		for(int j = 0; j < msg.size(); j++)
+		{
+			event = msg.get(j);
+			System.out.println(event.key);
+			if(event.isBE)
+			{
+				if(event.isDead)
+				{
+					if(event.time > aliveBEs.get(event.key).upTime)
+					{
+						if (aliveBEs.containsKey(event.key))
+						{
+							aliveBEs.remove(event.key);
+						}
+					}
+				}
+				else
+				{
+					if(!aliveBEs.containsKey(event.key))
+					{
+						aliveBEs.put(event.key, event.eventServer);
+						for(int i = 0; i < event.eventServer.numCore; i++)
+						{
+							synchronized(activeBEs)
+							{
+								activeBEs.add(event.key);
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				if(event.isDead)
+				{
+					if(event.time > aliveFEs.get(event.key).upTime)
+					{
+						aliveFEs.remove(event.key);
+					}
+				}
+				else
+				{
+					if(!aliveFEs.containsKey(event.key))
+					{
+						aliveFEs.put(event.key, event.eventServer);
+					}
+				}
+			}
+		}
 	}
 }
 

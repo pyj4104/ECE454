@@ -36,10 +36,10 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 	{
 		CommandStructure command;
 		ReturnStructure result;
-
 		command = new CommandStructure("hash", password, logRounds);
 
 		localReqRec.addAndGet(1);
+		System.out.println("hi hash");
 		result = ProcessRequest(command);
 		localReqCom.addAndGet(1);
 		return result.hash;		
@@ -80,6 +80,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		String key;
 
 		//Choose which BE it will use
+		System.out.println("BE size: " + activeBEs.size());
 		bEUsed = new Random().nextInt(activeBEs.size());
 		key = activeBEs.get(bEUsed);
 		item = aliveBEs.get(key);
@@ -87,6 +88,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 
 		try
 		{
+			System.out.println("command " + com.command +", trying pport " + item.pportNum);
 			transport = new TFramedTransport(new TSocket(item.host, item.pportNum));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);

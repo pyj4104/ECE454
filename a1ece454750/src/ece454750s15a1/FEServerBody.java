@@ -39,18 +39,6 @@ public class FEServerBody extends ServerCommon
 			aliveBEs = new ConcurrentHashMap<String, JoinProtocol>();
 			aliveFEs = new ConcurrentHashMap<String, JoinProtocol>();
 
-			initInfo = super.FEReport();
-
-			if(initInfo.activeBEs != null)
-			{
-				activeBEs.addAll(initInfo.activeBEs);
-			}
-			if(!initInfo.aliveBEs.isEmpty())
-			{
-				aliveBEs.putAll(initInfo.aliveBEs);
-			}
-			aliveFEs.putAll(initInfo.aliveFEs);
-
 			Runnable password = new Runnable()
 			{
 				public void run()
@@ -93,6 +81,19 @@ public class FEServerBody extends ServerCommon
 			new Thread(password).start();
 			new Thread(management).start();
 			new Thread(unstoppableMouth).start();
+
+			initInfo = super.FEReport();
+
+			if(initInfo.activeBEs != null)
+			{
+				activeBEs.addAll(initInfo.activeBEs);
+			}
+			if(!initInfo.aliveBEs.isEmpty())
+			{
+				aliveBEs.putAll(initInfo.aliveBEs);
+			}
+			aliveFEs.putAll(initInfo.aliveFEs);
+
 		}
 		catch (Exception X)
 		{
@@ -107,21 +108,19 @@ public class FEServerBody extends ServerCommon
 		msg = new ArrayList<GossippingProto>();
 
 		//Prepare message
-		for(int i = 0; i < eventLogger.size(); i++)
+		synchronized(eventLogger)
 		{
-			if(eventLogger.get(i).eventLife != 0)
+			for(Iterator<GossippingProto> iter = eventLogger.iterator(); iter.hasNext();)
 			{
-				synchronized(eventLogger)
+				GossippingProto gossip = iter.next();
+				if(gossip.eventLife != 0)
 				{
-					eventLogger.get(i).eventLife--;
+					gossip.eventLife--;
+					msg.add(gossip);
 				}
-				msg.add(eventLogger.get(i));
-			}
-			else
-			{
-				synchronized(eventLogger)
+				else
 				{
-					eventLogger.remove(i);
+					iter.remove();
 				}
 			}
 		}
@@ -131,37 +130,47 @@ public class FEServerBody extends ServerCommon
 
 	private void talk(ArrayList<GossippingProto> msg)
 	{
-		for(Map.Entry<String, JoinProtocol> entry : aliveFEs.entrySet())
+		Iterator<Map.Entry<String, JoinProtocol>> entries = aliveFEs.entrySet().iterator();
+		//for(Map.Entry<String, JoinProtocol> entry : aliveFEs.entrySet())
+		while(entries.hasNext())
 		{
-			try
+			Map.Entry<String, JoinProtocol> entry = entries.next();
+			Random rng = new Random();
+			if(!entry.getKey().equals(super.id))
 			{
-				TTransport transport;
-				TProtocol protocol;
-				A1Management.Client client;
+				if(rng.nextInt(100)<10)
+					System.out.println(entry.getKey());
+				try
+				{
+					TTransport transport;
+					TProtocol protocol;
+					A1Management.Client client;
 
-				transport = new TFramedTransport(new TSocket(entry.getValue().host, entry.getValue().mportNum));
-				transport.open();
-				protocol = new TBinaryProtocol(transport);
-				client = new A1Management.Client(protocol);
-				//client.
-				transport.close();
-			}
-			catch(TTransportException refused)
-			{
-				GossippingProto event;
+					transport = new TFramedTransport(new TSocket(entry.getValue().host, entry.getValue().mportNum));
+					transport.open();
+					protocol = new TBinaryProtocol(transport);
+					client = new A1Management.Client(protocol);
+					client.gossip(msg);
+					transport.close();
+				}
+				catch(TTransportException refused)
+				{
+					GossippingProto event;
+					System.out.println("refused: " + refused.getMessage());
+					event = new GossippingProto();
+					event.isDead = true;
+					event.key = entry.getKey();
+					event.eventServer = aliveFEs.get(entry.getKey());
+					event.time = new Date().getTime();
+					event.eventLife = 10;
+					event.isBE = false;
 
-				event = new GossippingProto();
-				event.isDead = true;
-				event.eventServer.put(entry.getKey(), aliveBEs.get(entry.getKey()));
-				event.time = new Date().getTime();
-				event.eventLife = 10;
-				event.isBE = false;
-
-				aliveFEs.remove(entry.getKey());
-			}
-			catch (Exception X)
-			{
-				X.printStackTrace();
+					aliveFEs.remove(entry.getKey());
+				}
+				catch (Exception X)
+				{
+					X.printStackTrace();
+				}
 			}
 		}
 	}
