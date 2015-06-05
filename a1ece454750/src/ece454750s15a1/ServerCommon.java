@@ -1,6 +1,7 @@
 package ece454750s15a1;
-import java.util.concurrent.atomic.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
+import javax.naming.ServiceUnavailableException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
@@ -199,6 +200,123 @@ public class ServerCommon
 		}
 		
 		return false;
+	}
+
+	protected FEJoinResponse FEReport() throws InterruptedException
+	{
+		JoinProtocol selfInfo;
+		FEJoinResponse initInfo;
+		boolean isSeed;
+		boolean reported;
+		String seedKey;
+		String myKey;
+		
+		selfInfo = new JoinProtocol();
+		selfInfo.host = hostString;
+		selfInfo.pportNum = pportNumber;
+		selfInfo.mportNum = mportNumber;
+		selfInfo.isBackEnd = false;
+		selfInfo.numCore = numCore;
+
+		initInfo = new FEJoinResponse();
+		initInfo.activeBEs = new ArrayList<String>();
+		initInfo.aliveBEs = new HashMap<String, JoinProtocol>();
+		initInfo.aliveFEs = new HashMap<String, JoinProtocol>();
+
+		isSeed = false;
+		reported = false;
+
+		if (seedHosts.isEmpty())
+		{
+			System.out.println("No seed is given. The program will exit");
+			System.exit(0);
+		}
+
+		for(int i = 0; i < seedHosts.size(); i++)
+		{
+			seedKey = seedHosts.get(i) + ":" + seedPorts.get(i);
+			myKey = selfInfo.host + ":" + selfInfo.mportNum;
+
+			if(myKey.equals(seedKey))
+			{
+				isSeed = true;
+			}
+			else
+			{
+				try
+				{
+					initInfo = FETryConnection(selfInfo, i % seedHosts.size());
+					reported = true;
+					break;
+				}
+				catch (ServiceUnavailableException X)
+				{
+					System.out.print("Reporting to " + seedHosts.get(i % seedHosts.size()) + ":");
+					System.out.println(seedPorts.get(i % seedHosts.size()) +
+						" Failed. Attempting the report procedure again within 1 second.");
+					System.out.println("3");
+					Thread.sleep(1000);
+					System.out.println("2");
+					Thread.sleep(1000);
+					System.out.println("1");
+					Thread.sleep(1000);
+					System.out.println("Reporting......");
+				}
+			}				
+		}
+
+		if(reported)
+		{
+			System.out.println("Successfully connected to a FE seed node.");
+		}
+		else
+		{
+			System.out.println("No other seeds have been found.");
+			if(isSeed)
+			{
+				System.out.println("This is the first seed.");
+			}
+			else
+			{
+				System.out.println("This is not a seed FE server. The program will be terminated.");
+				System.exit(0);
+			}
+		}
+
+		return initInfo;		
+	}
+
+	private static FEJoinResponse FETryConnection(JoinProtocol selfInfo, int index) throws ServiceUnavailableException
+	{
+		TTransport transport;
+		TProtocol protocol;
+		A1Management.Client client;
+		FEJoinResponse initInfo;
+
+		try
+		{
+			transport = new TFramedTransport(new TSocket(seedHosts.get(index), seedPorts.get(index)));
+			transport.open();
+			protocol = new TBinaryProtocol(transport);
+			client = new A1Management.Client(protocol);
+
+			initInfo = client.feJoin(selfInfo);
+
+			transport.close();
+
+			return initInfo;
+		}
+		catch(TTransportException refused)
+		{
+			throw new ServiceUnavailableException("Failed to connect.");
+		}
+		catch(Exception X)
+		{
+			X.printStackTrace();
+			System.exit(0);
+		}
+		
+		return null;
 	}
 }
 

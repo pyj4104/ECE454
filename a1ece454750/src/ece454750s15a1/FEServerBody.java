@@ -1,9 +1,8 @@
 package ece454750s15a1;
 import java.util.concurrent.atomic.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.naming.*;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadedSelectorServer.Args;
@@ -27,9 +26,26 @@ public class FEServerBody extends ServerCommon
 
 		try
 		{
+			FEJoinResponse initInfo;
+
 			activeBEs = Collections.synchronizedList(new ArrayList<String>());
 			aliveBEs = new ConcurrentHashMap<String, JoinProtocol>();
-			
+			aliveFEs = new ConcurrentHashMap<String, JoinProtocol>();
+
+			initInfo = super.FEReport();
+			System.out.println(initInfo.activeBEs);
+			System.out.println(initInfo.aliveBEs);
+
+			if(initInfo.activeBEs != null)
+			{
+				activeBEs.addAll(initInfo.activeBEs);
+			}
+			if(!initInfo.aliveBEs.isEmpty())
+			{
+				aliveBEs.putAll(initInfo.aliveBEs);
+			}
+			aliveFEs.putAll(initInfo.aliveFEs);
+
 			Runnable password = new Runnable()
 			{
 				public void run()
@@ -44,9 +60,17 @@ public class FEServerBody extends ServerCommon
 			{
 				public void run()
 				{
-					mhandler = new FEManagementHandler(numReqRec, numReqCom, activeBEs, aliveBEs);
+					mhandler = new FEManagementHandler(numReqRec, numReqCom, activeBEs, aliveBEs, aliveFEs);
 					mproc = new A1Management.Processor(mhandler);
 					msimple(mproc);
+				}
+			};
+
+			Runnable unstoppingMouth = new Runnable()
+			{
+				public void run()
+				{
+					
 				}
 			};
 
@@ -57,5 +81,10 @@ public class FEServerBody extends ServerCommon
 		{
 			X.printStackTrace();
 		}
+	}
+
+	private void gossipWithOthers()
+	{
+
 	}
 }

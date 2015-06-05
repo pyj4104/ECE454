@@ -15,6 +15,16 @@ public class ManagementHandlerCommon implements A1Management.Iface
 	protected Date startTime;
 	protected AtomicInteger localReqRec;
 	protected AtomicInteger localReqCom;
+	
+	public boolean join(JoinProtocol joinProto)
+	{
+		return false;
+	}
+
+	public FEJoinResponse feJoin(JoinProtocol joinProto)
+	{
+		return null;
+	}
 
 	public ManagementHandlerCommon(AtomicInteger numReqRec, AtomicInteger numReqCom)
 	{
@@ -45,11 +55,6 @@ public class ManagementHandlerCommon implements A1Management.Iface
 		QID.add("h53huang");
 		
 		return QID;
-	}
-	
-	public boolean join(JoinProtocol joinProto)
-	{
-		return true;
 	}
 	
 	public void gossip(List<JoinProtocol> listOfBE)

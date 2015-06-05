@@ -14,14 +14,17 @@ public class FEManagementHandler extends ManagementHandlerCommon
 {
 	private List<String> activeBEs;
 	private ConcurrentHashMap<String, JoinProtocol> aliveBEs;
+	private ConcurrentHashMap<String, JoinProtocol> aliveFEs;
 
 	public FEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
 		List<String> active, 
-		ConcurrentHashMap<String, JoinProtocol> alive)
+		ConcurrentHashMap<String, JoinProtocol> aliveBE,
+		ConcurrentHashMap<String, JoinProtocol> aliveFE)
 	{
 		super(numReqRec, numReqCom);
 		activeBEs = active;
-		aliveBEs = alive;
+		aliveBEs = aliveBE;
+		aliveFEs = aliveFE;
 	}
 	
 	public PerfCounters getPerfCounters()
@@ -39,7 +42,6 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		try
 		{
 			String key = generateKeyString(newNode);
-
 			synchronized(activeBEs)
 			{
 				for(int i = 0; i < newNode.numCore; i++)
@@ -60,6 +62,43 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		}
 
 		return false;
+	}
+
+	public FEJoinResponse feJoin(JoinProtocol newNode)
+	{
+		try
+		{
+			FEJoinResponse retVal;
+			String key;
+
+			key = generateKeyString(newNode);
+
+			synchronized(activeBEs)
+			{
+				if(!aliveFEs.containsKey(key))
+				{
+					aliveFEs.put(key, newNode);
+				}
+			}
+
+			retVal = new FEJoinResponse();
+
+			retVal.activeBEs = activeBEs;
+			retVal.aliveBEs = aliveBEs;
+			retVal.aliveFEs = aliveFEs;
+
+			System.out.println(activeBEs);
+			System.out.println(aliveBEs);
+			System.out.println(aliveFEs);
+
+			return retVal;
+		}
+		catch(Exception X)
+		{
+			X.printStackTrace();
+		}
+
+		return null;
 	}
 }
 

@@ -75,7 +75,7 @@ public class TestClient
 			int saltGenLogRounds;
 			boolean check;
 			
-			transport = new TFramedTransport(new TSocket("localhost", 14266));
+			transport = new TFramedTransport(new TSocket("localhost", 14267));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);
