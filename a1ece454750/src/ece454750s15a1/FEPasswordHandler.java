@@ -32,7 +32,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		logger = eventLogger;
 	}
 
-	public String hashPassword(String password, int logRounds) //throws ServiceUnavailableException
+	public String hashPassword(String password, int logRounds) throws ServiceUnavailableException
 	{
 		CommandStructure command;
 		ReturnStructure result;
@@ -45,7 +45,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		return result.hash;		
 	}
 
-	public boolean checkPassword(String candidate, String hash) //throws ServiceUnavailableException
+	public boolean checkPassword(String candidate, String hash) throws ServiceUnavailableException
 	{
 		CommandStructure command;
 		ReturnStructure result;
@@ -58,7 +58,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		return result.check;
 	}
 
-	private ReturnStructure ProcessRequest(CommandStructure com) //throws ServiceUnavailableException
+	private ReturnStructure ProcessRequest(CommandStructure com) throws ServiceUnavailableException
 	{
 		/*ReturnStructure retVal;
 		String key;
@@ -70,7 +70,10 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		retVal = Execute(com, activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum);
 
 		return retVal;*/
-
+		if(aliveBEs.isEmpty())
+		{
+			throw new ServiceUnavailableException("Service unavailable");
+		}
 		TTransport transport;
 		TProtocol protocol;
 		A1Password.Client client;
@@ -85,7 +88,7 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		key = activeBEs.get(bEUsed);
 		item = aliveBEs.get(key);
 		System.out.println(bEUsed);
-
+		
 		try
 		{
 			System.out.println("command " + com.command +", trying pport " + item.pportNum);

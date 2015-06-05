@@ -135,7 +135,7 @@ public class FEManagementHandler extends ManagementHandlerCommon
 
 	public void gossip(List<GossippingProto> message)
 	{
-		System.out.println(message);
+		//System.out.println(message);
 		GossippingProto event;
 		ArrayList<GossippingProto> msg;
 
