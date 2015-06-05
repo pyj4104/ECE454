@@ -12,16 +12,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FEManagementHandler extends ManagementHandlerCommon 
 {
-	private List<JoinProtocol> activeBEs;
-	private ConcurrentHashMap<String, JoinProtocol> deadBEs;
+	private List<String> activeBEs;
+	private ConcurrentHashMap<String, JoinProtocol> aliveBEs;
 
 	public FEManagementHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
-		List<JoinProtocol> alive, 
-		ConcurrentHashMap<String, JoinProtocol> dead)
+		List<String> active, 
+		ConcurrentHashMap<String, JoinProtocol> alive)
 	{
 		super(numReqRec, numReqCom);
-		activeBEs = alive;
-		deadBEs = dead;
+		activeBEs = active;
+		aliveBEs = alive;
 	}
 	
 	public PerfCounters getPerfCounters()
@@ -44,11 +44,11 @@ public class FEManagementHandler extends ManagementHandlerCommon
 			{
 				for(int i = 0; i < newNode.numCore; i++)
 				{
-					activeBEs.add(newNode);
+					activeBEs.add(key);
 				}
-				if(deadBEs.containsKey(key))
+				if(!aliveBEs.containsKey(key))
 				{
-					deadBEs.remove(key);
+					aliveBEs.put(key, newNode);
 				}
 			}
 

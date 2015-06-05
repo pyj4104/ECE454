@@ -17,16 +17,16 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class FEPasswordHandler extends PasswordHandlerCommon
 {
-	private List<JoinProtocol> activeBEs;
-	private ConcurrentHashMap<String, JoinProtocol> deadBEs;
+	private List<String> activeBEs;
+	private ConcurrentHashMap<String, JoinProtocol> aliveBEs;
 
 	public FEPasswordHandler(AtomicInteger numReqRec, AtomicInteger numReqCom,
-		List<JoinProtocol> alive, 
-		ConcurrentHashMap<String, JoinProtocol> dead)
+		List<String> active, 
+		ConcurrentHashMap<String, JoinProtocol> alive)
 	{
 		super(numReqRec, numReqCom);
-		activeBEs = alive;
-		deadBEs = dead;
+		activeBEs = active;
+		aliveBEs = alive;
 	}
 
 	public String hashPassword(String password, int logRounds) //throws ServiceUnavailableException
@@ -72,15 +72,19 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		TProtocol protocol;
 		A1Password.Client client;
 		ReturnStructure retVal;
+		JoinProtocol item;
 		int bEUsed;
+		String key;
 
 		//Choose which BE it will use
 		bEUsed = new Random().nextInt(activeBEs.size());
+		key = activeBEs.get(bEUsed);
+		item = aliveBEs.get(key);
 		System.out.println(bEUsed);
 
 		try
 		{
-			transport = new TFramedTransport(new TSocket(activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum));
+			transport = new TFramedTransport(new TSocket(item.host, item.pportNum));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);
@@ -104,7 +108,9 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		}
 		catch(TTransportException refused)
 		{
-
+			aliveBEs.remove(key);
+			activeBEs.remove(bEUsed);
+			return ProcessRequest(com);
 		}
 		catch(Exception X)
 		{

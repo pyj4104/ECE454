@@ -29,6 +29,13 @@ struct JoinProtocol
   5: i32 numCore
 }
 
+struct FEJoinResponse
+{
+  1: list<string> activeBEs
+  2: map<String, JoinProtocol> aliveBEs
+  3: map<String, JoinProtocol> aliveFEs
+}
+
 exception ServiceUnavailableException
 {
   1:string msg
@@ -45,6 +52,7 @@ service A1Password
 service A1Management
 {
    bool join(1:JoinProtocol joinProto),
+   //FEJoinResponse join(1:JoinProtocol joinProto),
    //void gossip(1:list<JoinProtocol> listOfBE),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()

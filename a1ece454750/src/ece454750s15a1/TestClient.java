@@ -24,7 +24,7 @@ public class TestClient
 		try
 		{
 			simple();
-			check();
+			//check();
 		}
 		catch(Exception X)
 		{
