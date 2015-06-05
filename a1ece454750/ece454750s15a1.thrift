@@ -27,6 +27,7 @@ struct JoinProtocol
   3: i32 mportNum
   4: bool isBackEnd
   5: i32 numCore
+  6: i64 upTime
 }
 
 struct FEJoinResponse
@@ -34,6 +35,14 @@ struct FEJoinResponse
   1: list<string> activeBEs
   2: map<string, JoinProtocol> aliveBEs
   3: map<string, JoinProtocol> aliveFEs
+}
+
+struct GossippingProto
+{
+  1: bool isDead
+  2: string key
+  3: i64 time
+  4: int16 eventLife
 }
 
 exception ServiceUnavailableException
@@ -53,7 +62,7 @@ service A1Management
 {
    bool join(1:JoinProtocol joinProto),
    FEJoinResponse feJoin(1:JoinProtocol joinProto),
-   //void gossip(1:list<JoinProtocol> listOfBE),
+   //void gossip(1:list<GossippingProto> message),
    PerfCounters getPerfCounters(),
    list<string> getGroupMembers()
 }

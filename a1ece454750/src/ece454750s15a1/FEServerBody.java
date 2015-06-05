@@ -35,6 +35,7 @@ public class FEServerBody extends ServerCommon
 			initInfo = super.FEReport();
 			System.out.println(initInfo.activeBEs);
 			System.out.println(initInfo.aliveBEs);
+			System.out.println(initInfo.aliveFEs);
 
 			if(initInfo.activeBEs != null)
 			{
@@ -66,16 +67,28 @@ public class FEServerBody extends ServerCommon
 				}
 			};
 
-			Runnable unstoppingMouth = new Runnable()
+			Runnable unstoppableMouth = new Runnable()
 			{
-				public void run()
+				public void run() 
 				{
-					
+					while(true)
+					{
+						try
+						{
+							gossipWithOthers();
+							Thread.sleep(100);
+						}
+						catch(InterruptedException ex)
+						{
+
+						}
+					}
 				}
 			};
 
 			new Thread(password).start();
 			new Thread(management).start();
+			new Thread(unstoppableMouth).start();
 		}
 		catch (Exception X)
 		{
@@ -85,6 +98,6 @@ public class FEServerBody extends ServerCommon
 
 	private void gossipWithOthers()
 	{
-
+		
 	}
 }

@@ -275,6 +275,8 @@ public class ServerCommon
 			if(isSeed)
 			{
 				System.out.println("This is the first seed.");
+				selfInfo.upTime = new Date().getTime();
+				initInfo.aliveFEs.put(selfInfo.host + ":" + selfInfo.pportNum + ":" + selfInfo.mportNum, selfInfo);
 			}
 			else
 			{

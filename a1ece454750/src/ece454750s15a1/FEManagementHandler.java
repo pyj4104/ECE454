@@ -42,6 +42,7 @@ public class FEManagementHandler extends ManagementHandlerCommon
 		try
 		{
 			String key = generateKeyString(newNode);
+			newNode.upTime = new Date().getTime();
 			synchronized(activeBEs)
 			{
 				for(int i = 0; i < newNode.numCore; i++)
@@ -72,7 +73,8 @@ public class FEManagementHandler extends ManagementHandlerCommon
 			String key;
 
 			key = generateKeyString(newNode);
-
+			newNode.upTime = new Date().getTime();
+			
 			synchronized(activeBEs)
 			{
 				if(!aliveFEs.containsKey(key))
