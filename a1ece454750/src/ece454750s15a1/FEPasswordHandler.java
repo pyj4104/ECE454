@@ -29,108 +29,184 @@ public class FEPasswordHandler extends PasswordHandlerCommon
 		deadBEs = dead;
 	}
 
-	public String hashPassword(String password, int logRounds)
+	public String hashPassword(String password, int logRounds) throws ServiceUnavailableException
 	{
-		TTransport transport;
-		TProtocol protocol;
-		A1Password.Client client;
-		String hashed;
-		int bEUsed;
+		CommandStructure command;
+		ReturnStructure result;
+
+		command = new CommandStructure("hash", password, logRounds);
 
 		localReqRec.addAndGet(1);
-
-		//Choose which BE it will use
-		bEUsed = new Random().nextInt(activeBEs.size());
-		System.out.println(bEUsed);
-
-		try
+		result = ProcessRequest(command);
+		if(result.error == true)
 		{
-			transport = new TFramedTransport(new TSocket(activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum));
-			transport.open();
-			protocol = new TBinaryProtocol(transport);
-			client = new A1Password.Client(protocol);
-
-			hashed = client.hashPassword(password, logRounds);
-			
-			transport.close();
-
-			localReqCom.addAndGet(1);
-
-			return hashed;
+			throw new ServiceUnavailableException(result.errMsg);
 		}
-		catch(TTransportException refused)
-		{
-
-		}
-		catch(Exception X)
-		{
-			X.printStackTrace();
-		}
-
-		return null;
+		localReqCom.addAndGet(1);
+		return result.hash;
 	}
 
-	public boolean checkPassword(String candidate, String hash)
+	public boolean checkPassword(String candidate, String hash) throws ServiceUnavailableException
+	{
+		CommandStructure command;
+		ReturnStructure result;
+
+		command = new CommandStructure("check", hash, candidate);
+
+		localReqRec.addAndGet(1);
+		result = ProcessRequest(command);
+		localReqCom.addAndGet(1);
+
+		if(result.error == true)
+		{
+			throw new ServiceUnavailableException(result.errMsg);
+		}
+
+		return result.check;
+	}
+
+	private ReturnStructure ProcessRequest(CommandStructure com) throws ServiceUnavailableException
+	{
+		ReturnStructure retVal;
+		String key;
+		int bEUsed;
+
+		bEUsed = 0;
+		key = "";
+
+		if (activeBEs.isEmpty())
+		{
+			retVal = new ReturnStructure(true, "All back end server is down. Service is unavailable.");
+			return retVal;
+		}
+
+		try
+		{
+			while(!activeBEs.isEmpty())
+			{
+				bEUsed = new Random().nextInt(activeBEs.size());
+				key = super.generateKeyString(activeBEs.get(bEUsed));
+
+				//Choose which BE it will use
+				if(deadBEs.containsKey(key))
+				{
+					activeBEs.remove(bEUsed);
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			retVal = Execute(com, activeBEs.get(bEUsed).host, activeBEs.get(bEUsed).pportNum);
+		}
+		catch(TTransportException X)
+		{
+			synchronized(activeBEs)
+			{
+				if(!deadBEs.containsKey(key))
+				{
+					deadBEs.put(key, activeBEs.get(bEUsed));
+				}
+
+				activeBEs.remove(bEUsed);
+			}
+
+			retVal = ProcessRequest(com);
+		}
+		catch(TException ex)
+		{
+			retVal = new ReturnStructure(true, "Error!");
+		}
+
+		return retVal;
+	}
+
+	private ReturnStructure Execute(CommandStructure com, String host, int pport) throws TTransportException, ServiceUnavailableException
 	{
 		TTransport transport;
 		TProtocol protocol;
 		A1Password.Client client;
-		boolean check;
+		ReturnStructure retVal;
 
-		localReqRec.addAndGet(1);
-		
 		try
 		{
-			transport = new TFramedTransport(new TSocket("localhost", 14264));
+			transport = new TFramedTransport(new TSocket(host, pport));
 			transport.open();
 			protocol = new TBinaryProtocol(transport);
 			client = new A1Password.Client(protocol);
 
-			check = client.checkPassword(candidate, hash);
+			if (com.command.equals("hash"))
+			{
+				retVal = new ReturnStructure(client.hashPassword(com.password, com.logRounds));
+			}
+			else if (com.command.equals("check"))
+			{
+				retVal = new ReturnStructure(client.checkPassword(com.candidate, com.hash));
+			}
+			else
+			{
+				retVal = new ReturnStructure(true, "Error!");
+			}
 			
 			transport.close();
 
-			localReqCom.addAndGet(1);
-
-			return check;
+			return retVal;
 		}
-		catch(TTransportException refused)
+		catch(TTransportException X)
 		{
-
+			throw new TTransportException("Bad!!!");
 		}
-		catch(Exception X)
+		catch(TException X)
 		{
-			X.printStackTrace();
+			return new ReturnStructure(true, "Error!");
 		}
-
-		return false;
 	}
 
 	class CommandStructure
 	{
 		protected String command;
-		protected String host;
 		protected String password;
-		protected int port;
+		protected String candidate;
+		protected String hash;
+		protected int logRounds;
 
-		public CommandStructure(String com, String hos, String pass, int por)
+		public CommandStructure(String com, String pass, int log)
 		{
 			command = com;
-			host = hos;
 			password = pass;
-			port = por;
+			logRounds = log;
+		}
+
+		public CommandStructure(String com, String cand, String has)
+		{
+			command = com;
+			candidate = cand;
+			hash = has;
 		}
 	}
 
 	class ReturnStructure
 	{
-		protected String command;
+		protected boolean error;
 		protected boolean check;
 		protected String hash;
+		protected String errMsg;
 		
-		public ReturnStructure(String com, boolean che, String has)
+		public ReturnStructure(String has)
 		{
+			hash = has;
+		}
 
+		public ReturnStructure(boolean che)
+		{
+			check = che;
+		}
+
+		public ReturnStructure(boolean err, String msg)
+		{
+			error = err;
+			errMsg = msg;
 		}
 	}
 }

@@ -61,10 +61,5 @@ public class FEManagementHandler extends ManagementHandlerCommon
 
 		return false;
 	}
-	
-	/*public void leave(ConcurrentHashMap<BEJoinProtocol, Boolean> dead)
-	{
-		deadBEs.remove(super.generateKeyString(newNode));
-	}*/
 }
 

@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.*;
 import org.apache.thrift.TException;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class PasswordHandlerCommon implements A1Password.Iface
+public abstract class PasswordHandlerCommon implements A1Password.Iface
 {
 	protected AtomicInteger localReqRec;
 	protected AtomicInteger localReqCom;
@@ -17,14 +17,16 @@ public class PasswordHandlerCommon implements A1Password.Iface
 		localReqCom = numReqCom;
 	}
 
-	public String hashPassword(String password, int logRounds)
-	{
-		return "dummy";
-	}
+	public abstract String hashPassword(String password, int logRounds) throws ServiceUnavailableException;
+	public abstract boolean checkPassword(String candidate, String hash) throws ServiceUnavailableException;
 
-	public boolean checkPassword(String candidate, String hash)
+	public static String generateKeyString(JoinProtocol proto)
 	{
-		return true;
+		String key;
+
+		key = proto.host + ":" + proto.pportNum + ":" + proto.mportNum;
+
+		return key;
 	}
 }
 

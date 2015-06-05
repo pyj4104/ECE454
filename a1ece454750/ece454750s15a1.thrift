@@ -29,10 +29,15 @@ struct JoinProtocol
   5: i32 numCore
 }
 
+exception ServiceUnavailableException
+{
+  1:string msg
+}
+
 service A1Password
 {
-   string hashPassword(1:string password, 2:i32 logRounds),
-   bool checkPassword(1:string password, 2:string hash)
+   string hashPassword(1:string password, 2:i32 logRounds) throws (1:ServiceUnavailableException X),
+   bool checkPassword(1:string password, 2:string hash) throws (1:ServiceUnavailableException X)
 }
 
 service A1Management
