@@ -2,6 +2,12 @@
 *.txt
 *.tar.gz
 
+#include smaller test files
+!samplegraph.txt
+!graph1K_A.txt
+!graph10K_B.txt
+
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
