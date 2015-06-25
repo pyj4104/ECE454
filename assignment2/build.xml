@@ -47,6 +47,16 @@
       </java>
     </sequential>
   </target>
+  <target name="a2-100kc" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if graph100K_C.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
   <target name="a2-1ma" description="Run the solution" depends="compile">
     <jar jarfile="a2.jar" basedir="${build}"/>
     <sequential>
