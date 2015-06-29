@@ -13,45 +13,6 @@ import java.io.*;
 import java.util.*;
 
 public class TriangleCountImpl {
-	class Graph{
-		int vertices;
-		HashSet<Edge> edges;
-		public Graph(int v, HashSet<Edge> e){
-			vertices = v;
-			edges = e;
-		}
-	}
-	class Edge{
-		int v1;
-		int v2;
-		public Edge(int vertex1, int vertex2){
-			v1 = vertex1;
-			v2 = vertex2;
-		}
-		public int hashCode() {
-			final int prime = 31;
-			int result = 7;
-			result = prime * result + v1;
-			result = prime * result + v2;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			MultiEdge other = (MultiEdge) obj;
-			if (v1 != other.v1)
-				return false;
-			if (v2 != other.v2)
-				return false;
-			return true;
-		}
-	}
 	class MultiEdge{
 		int v1;
 		int v2;
@@ -110,10 +71,10 @@ public class TriangleCountImpl {
 		
 		Set<MultiEdge> retMultiEdge = new HashSet<MultiEdge>();
 		Map<Integer, ArrayList<Integer>> adjacencyMap = getAdjacencyMap(input);
-		ArrayList<ArrayList<Integer>> subList = new ArrayList<ArrayList<Integer>>(adjacencyMap.size());
+		ArrayList<HashSet<Integer>> subList = new ArrayList<HashSet<Integer>>(adjacencyMap.size());
 		
 		for (int i = 0; i < adjacencyMap.size(); i++) {
-			subList.add(new ArrayList<Integer>());
+			subList.add(new HashSet<Integer>());
 		}
 		for(Map.Entry<Integer,ArrayList<Integer>> entry : adjacencyMap.entrySet()) {
 			//System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
@@ -121,7 +82,7 @@ public class TriangleCountImpl {
 				//System.out.println("\tlooking at " + entry.getKey() + " and " + adjacent);
 				if(adjacencyMap.get(adjacent).size() <= adjacencyMap.get(entry.getKey()).size()){
 					List<Integer> common = new LinkedList<Integer>(subList.get(entry.getKey()));
-					common.retainAll(new HashSet<Integer>(subList.get(adjacent)));
+					common.retainAll(subList.get(adjacent));
 					for(Integer k : common){
 						
 						int min, max, med;//assume values are there for a b c
@@ -177,27 +138,9 @@ public class TriangleCountImpl {
 			}
 		}
 		
-		
 		for(MultiEdge me : retMultiEdge){
 			ret.add(new Triangle(me.v1,me.v2,me.v3));
 		}
-		
-		/*
-		// The comparator
-		Comparator<List<Integer>> comparatorList = new Comparator<List<Integer>>() {
-			@Override
-			public int compare(List<Integer> l1, List<Integer> l2) {
-				if (l1.size() < l2.size()) {
-					return -1;
-				} else if (l1.size() > l2.size()) {
-					return 1;
-				} else {
-					return 0;
-				}
-			}
-
-		};
-		*/
 		
 		/*
 		ArrayList<ArrayList<Integer>> adjacencyList = getAdjacencyList(input);
@@ -217,35 +160,7 @@ public class TriangleCountImpl {
 			}
 		}
 		*/
-		/*
-		//hash solution, algorithm runs too slow.
-		Graph graph = getGraph(input);
-		for(Edge edge : graph.edges){			
-			for(int i = 0; i < edge.v1; i++){
-				Edge e1 = new Edge(i,edge.v1);
-				Edge e2 = new Edge(i,edge.v2);
-				if(graph.edges.contains(e1) && graph.edges.contains(e2)){
-					ret.add(new Triangle(i,edge.v1, edge.v2));
-				}
-			}
-		}
-		*/
-		/*
-		// matrix solution - doesn't work, takes too much space on heap.
-		boolean[][] adjacencyMatrix = getAdjacencyMatrix(input);
-		int numVertices = adjacencyMatrix[0].length;
-		for(int i = 0; i < numVertices; i++){
-			for(int j = i; j < numVertices; j++){
-				if(adjacencyMatrix[i][j] == true){
-					for(int k = j; k < numVertices; k++){
-						if(adjacencyMatrix[k][i] && adjacencyMatrix[k][j]){
-							ret.add(new Triangle(i,j,k));
-						}
-					}
-				}
-			}
-		}
-		*/
+		
 		/*
 		// naive triangle counting algorithm
 		ArrayList<ArrayList<Integer>> adjacencyList = getAdjacencyList(input);
@@ -268,35 +183,6 @@ public class TriangleCountImpl {
 		return ret;
     }
 
-	public Graph getGraph(byte[] data) throws IOException {
-	InputStream istream = new ByteArrayInputStream(data);
-	BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-	String strLine = br.readLine();
-	if (!strLine.contains("vertices") || !strLine.contains("edges")) {
-	    System.err.println("Invalid graph file format. Offending line: " + strLine);
-	    System.exit(-1);	    
-	}
-	String parts[] = strLine.split(", ");
-	int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
-	int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
-	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
-	HashSet<Edge> edges = new HashSet<Edge>();
-	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
-	    parts = strLine.split(": ");
-	    int vertex = Integer.parseInt(parts[0]);
-	    if (parts.length > 1) {
-		parts = parts[1].split(" +");
-		for (String part: parts) {
-			if(Integer.parseInt(part) > vertex) // added to only include adjacencies greater than current value
-				edges.add(new Edge(vertex,Integer.parseInt(part)));
-		}
-	    }
-	}
-	br.close();
-	Graph graph = new Graph(numVertices,edges);
-	return graph;
-    }
-	
 	public boolean[][] getAdjacencyMatrix(byte[] data) throws IOException {
 	InputStream istream = new ByteArrayInputStream(data);
 	BufferedReader br = new BufferedReader(new InputStreamReader(istream));
@@ -362,7 +248,7 @@ public class TriangleCountImpl {
  
 		// Convert Map to List
 		List<Map.Entry<Integer, ArrayList<Integer>>> list = 
-			new LinkedList<Map.Entry<Integer, ArrayList<Integer>>>(map.entrySet());
+			new ArrayList<Map.Entry<Integer, ArrayList<Integer>>>(map.entrySet());
  
 		// Sort list with comparator, to compare the Map values
 		Collections.sort(list, new Comparator<Map.Entry<Integer, ArrayList<Integer>>>() {
