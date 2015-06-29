@@ -32,11 +32,52 @@
       <echo>A2 test</echo>
       <java classname="ece454750s15a2.TriangleCount"
             classpathref="a2.classpath" failonerror="true">
-        <arg line="-ncores 1 -if graph100K_C.txt -of output.txt"/>
+        <arg line="-ncores 1 -if samplegraph.txt -of output.txt"/>
       </java>
     </sequential>
   </target>
   
+  <target name="a2test" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if testgraph.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  
+  <target name="a2-1ka" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if graph1K_A.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-1kb" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if graph1K_B.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-1kc" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if graph1K_C.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
   <target name="a2-10kb" description="Run the solution" depends="compile">
     <jar jarfile="a2.jar" basedir="${build}"/>
     <sequential>
@@ -44,6 +85,16 @@
       <java classname="ece454750s15a2.TriangleCount"
             classpathref="a2.classpath" failonerror="true">
         <arg line="-ncores 1 -if graph10K_B.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-10kc" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 1 -if graph10K_C.txt -of output.txt"/>
       </java>
     </sequential>
   </target>
