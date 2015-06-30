@@ -68,7 +68,7 @@ public class TriangleCountImpl {
     public List<Triangle> enumerateTriangles() throws IOException {
 		// this code is single-threaded and ignores numCores
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
-		
+		/*
 		Set<MultiEdge> retMultiEdge = new HashSet<MultiEdge>();
 		Map<Integer, ArrayList<Integer>> adjacencyMap = getAdjacencyMap(input);
 		ArrayList<HashSet<Integer>> subList = new ArrayList<HashSet<Integer>>(adjacencyMap.size());
@@ -81,10 +81,9 @@ public class TriangleCountImpl {
 			for(Integer adjacent : entry.getValue()){
 				//System.out.println("\tlooking at " + entry.getKey() + " and " + adjacent);
 				if(adjacencyMap.get(adjacent).size() <= adjacencyMap.get(entry.getKey()).size()){
-					List<Integer> common = new LinkedList<Integer>(subList.get(entry.getKey()));
+					List<Integer> common = new ArrayList<Integer>(subList.get(entry.getKey()));
 					common.retainAll(subList.get(adjacent));
 					for(Integer k : common){
-						
 						int min, max, med;//assume values are there for a b c
 						if( entry.getKey() > adjacent ){
 						 if( entry.getKey() > k ){
@@ -141,25 +140,28 @@ public class TriangleCountImpl {
 		for(MultiEdge me : retMultiEdge){
 			ret.add(new Triangle(me.v1,me.v2,me.v3));
 		}
+		*/
 		
-		/*
-		ArrayList<ArrayList<Integer>> adjacencyList = getAdjacencyList(input);
+		//Edge iterator algorithm
+		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
 		int numVertices = adjacencyList.size();
 		for(int i = 0; i < numVertices; i++){
-			ArrayList<Integer> neighbours = adjacencyList.get(i);
-			for(Integer j : neighbours){
-				if(i < j){
-					List<Integer> common = new LinkedList<Integer>(neighbours);
-					common.retainAll(new HashSet<Integer>(adjacencyList.get(j)));
+			HashSet<Integer> neighbours = adjacencyList.get(i);
+			Iterator<Integer> it = neighbours.iterator();
+			while(it.hasNext()){
+				Integer j = it.next();
+				if(i<j){
+					boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+					common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
 					for(Integer k : common){
-						if(k > j){
+						if(k>j){
 							ret.add(new Triangle(i,j,k));
 						}
 					}
 				}
 			}
 		}
-		*/
 		
 		/*
 		// naive triangle counting algorithm
@@ -271,6 +273,38 @@ public class TriangleCountImpl {
 		}
 		return sortedMap;
 	}
+	
+	public ArrayList<HashSet<Integer>> getAdjacencyListSet(byte[] data) throws IOException {
+	InputStream istream = new ByteArrayInputStream(data);
+	BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+	String strLine = br.readLine();
+	if (!strLine.contains("vertices") || !strLine.contains("edges")) {
+	    System.err.println("Invalid graph file format. Offending line: " + strLine);
+	    System.exit(-1);	    
+	}
+	String parts[] = strLine.split(", ");
+	int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
+	int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
+ 
+	ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
+	for (int i = 0; i < numVertices; i++) {
+	    adjacencyListSet.add(new HashSet<Integer>());
+	}
+	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+	    parts = strLine.split(": ");
+	    int vertex = Integer.parseInt(parts[0]);
+	    if (parts.length > 1) {
+		parts = parts[1].split(" +");
+		for (String part: parts) {
+			if(Integer.parseInt(part) > vertex) // added to only include adjacencies greater than current value
+				adjacencyListSet.get(vertex).add(Integer.parseInt(part));
+		}
+	    }
+	}
+	br.close();
+	return adjacencyListSet;
+    }
 	
     public ArrayList<ArrayList<Integer>> getAdjacencyList(byte[] data) throws IOException {
 	InputStream istream = new ByteArrayInputStream(data);
