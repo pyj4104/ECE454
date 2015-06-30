@@ -289,17 +289,18 @@ public class TriangleCountImpl {
  
 	ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
 	for (int i = 0; i < numVertices; i++) {
-	    adjacencyListSet.add(new HashSet<Integer>());
+		adjacencyListSet.add(new HashSet<Integer>());
 	}
 	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
-	    parts = strLine.split(": ");
-	    int vertex = Integer.parseInt(parts[0]);
-	    if (parts.length > 1) {
-		parts = parts[1].split(" +");
-		for (String part: parts) {
-			if(Integer.parseInt(part) > vertex) // added to only include adjacencies greater than current value
-				adjacencyListSet.get(vertex).add(Integer.parseInt(part));
-		}
+	    StringTokenizer st1 = new StringTokenizer(strLine,": ");
+	    int vertex = Integer.parseInt(st1.nextToken());
+	    if (st1.hasMoreTokens()) {
+			while(st1.hasMoreTokens()){
+				int part = Integer.parseInt(st1.nextToken());
+				if(part > vertex){
+					adjacencyListSet.get(vertex).add(part);
+				}
+			}
 	    }
 	}
 	br.close();
