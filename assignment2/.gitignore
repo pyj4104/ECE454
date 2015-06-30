@@ -4,6 +4,7 @@
 
 #include smaller test files
 !samplegraph.txt
+!testgraph.txt
 !graph1K_A.txt
 !graph10K_B.txt
 
