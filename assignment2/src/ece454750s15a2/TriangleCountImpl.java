@@ -288,9 +288,19 @@ public class TriangleCountImpl {
 	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
  
 	ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
-	for (int i = 0; i < numVertices; i++) {
-		adjacencyListSet.add(new HashSet<Integer>());
+	
+	if(numVertices < 200000){
+		//doesn't work for 1 million, java out of memory on heap
+		for (int i = 0; i < numVertices; i++) {
+			//adjacencyListSet.add(new HashSet<Integer>());
+			adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+		}
+	}else{
+		for (int i = 0; i < numVertices; i++) {
+			adjacencyListSet.add(new HashSet<Integer>());
+		}
 	}
+	
 	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
 	    StringTokenizer st1 = new StringTokenizer(strLine,": ");
 	    int vertex = Integer.parseInt(st1.nextToken());
