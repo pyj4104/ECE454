@@ -16,7 +16,6 @@ import java.util.concurrent.*;
 public class TriangleCountImpl {
     private byte[] input;
     private int numCores;
-	private volatile List<Triangle> ret;
 
     public TriangleCountImpl(byte[] input, int numCores) {
 	this.input = input;
@@ -32,7 +31,11 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException, InterruptedException {
-		return multiThread();
+		if(numCores == 1){
+			return singleThread();
+		}else{
+			return multiThread(numCores);
+		}
     }
     public List<Triangle> singleThread() throws IOException {
 		// this code is single-threaded and ignores numCores
@@ -62,10 +65,10 @@ public class TriangleCountImpl {
 		return ret;
     }
 
-    public List<Triangle> multiThread() throws IOException, InterruptedException {
+    public List<Triangle> multiThread(int numCores) throws IOException, InterruptedException {
 		// this code is single-threaded and ignores numCores
-		ret = Collections.synchronizedList(new ArrayList<Triangle>());
-		ExecutorService threadPool = Executors.newFixedThreadPool(4);
+		final List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
+		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
 
 		//Edge iterator algorithm
 		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
@@ -228,7 +231,6 @@ public class TriangleCountImpl {
 		while(current < strLine.length() - 1){
 			previous = current;
 			current = strLine.indexOf(' ',previous+1);
-			//System.out.println(strLine.substring(previous+1,current));
 			int part = Integer.parseInt(strLine.substring(previous+1,current));
 			if(part > vertex)
 				adjacencyListSet.get(vertex).add(part);

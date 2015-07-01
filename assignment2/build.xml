@@ -108,6 +108,26 @@
       </java>
     </sequential>
   </target>
+  <target name="a2-100kc-2" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 multicore test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 2 -if graph100K_C.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-100kc-4" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 multicore test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 4 -if graph100K_C.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
   <target name="a2-1ma" description="Run the solution" depends="compile">
     <jar jarfile="a2.jar" basedir="${build}"/>
     <sequential>
@@ -125,6 +145,26 @@
       <java classname="ece454750s15a2.TriangleCount"
             classpathref="a2.classpath" failonerror="true">
         <arg line="-ncores 1 -if graph1M_B.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-1mb-2" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 multicore test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 2 -if graph1M_B.txt -of output.txt"/>
+      </java>
+    </sequential>
+  </target>
+  <target name="a2-1mb-4" description="Run the solution" depends="compile">
+    <jar jarfile="a2.jar" basedir="${build}"/>
+    <sequential>
+      <echo>A2 multicore test</echo>
+      <java classname="ece454750s15a2.TriangleCount"
+            classpathref="a2.classpath" failonerror="true">
+        <arg line="-ncores 4 -if graph1M_B.txt -of output.txt"/>
       </java>
     </sequential>
   </target>
