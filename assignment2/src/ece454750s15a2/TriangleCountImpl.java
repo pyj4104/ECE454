@@ -302,16 +302,30 @@ public class TriangleCountImpl {
 	}
 	
 	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+		
+		int previous = 0;
+		int current = strLine.indexOf(':', 0);
+		int vertex = Integer.parseInt(strLine.substring(0,current));
+		current = strLine.indexOf(' ',previous+1);
+		while(current < strLine.length() - 1){
+			previous = current;
+			current = strLine.indexOf(' ',previous+1);
+			//System.out.println(strLine.substring(previous+1,current));
+			int part = Integer.parseInt(strLine.substring(previous+1,current));
+			if(part > vertex)
+				adjacencyListSet.get(vertex).add(part);
+		}
+		
+		/*
 	    StringTokenizer st1 = new StringTokenizer(strLine,": ");
 	    int vertex = Integer.parseInt(st1.nextToken());
-	    if (st1.hasMoreTokens()) {
-			while(st1.hasMoreTokens()){
-				int part = Integer.parseInt(st1.nextToken());
-				if(part > vertex){
-					adjacencyListSet.get(vertex).add(part);
-				}
+		while(st1.hasMoreTokens()){
+			int part = Integer.parseInt(st1.nextToken());
+			if(part > vertex){
+				adjacencyListSet.get(vertex).add(part);
 			}
-	    }
+		}
+		*/
 	}
 	br.close();
 	return adjacencyListSet;
