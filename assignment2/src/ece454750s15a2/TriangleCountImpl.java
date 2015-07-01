@@ -68,10 +68,13 @@ public class TriangleCountImpl {
     public List<Triangle> multiThread(int numCores) throws IOException, InterruptedException {
 		// this code is single-threaded and ignores numCores
 		final List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
-		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
-
+		
 		//Edge iterator algorithm
-		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		long startTime = System.currentTimeMillis();
+		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSetMultiThread(input);
+		System.out.println(System.currentTimeMillis() - startTime);
+		
+		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
 
 		int numVertices = adjacencyList.size();
 		for(int i = 0; i < numVertices; i++){
@@ -196,59 +199,117 @@ public class TriangleCountImpl {
 	}
 	
 	public ArrayList<HashSet<Integer>> getAdjacencyListSet(byte[] data) throws IOException {
-	InputStream istream = new ByteArrayInputStream(data);
-	BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-	String strLine = br.readLine();
-	if (!strLine.contains("vertices") || !strLine.contains("edges")) {
-	    System.err.println("Invalid graph file format. Offending line: " + strLine);
-	    System.exit(-1);	    
-	}
-	String parts[] = strLine.split(", ");
-	int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
-	int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
-	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
- 
-	ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
-	
-	if(numVertices < 200000){
-		//doesn't work for 1 million, java out of memory on heap
-		for (int i = 0; i < numVertices; i++) {
-			//adjacencyListSet.add(new HashSet<Integer>());
-			adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+		InputStream istream = new ByteArrayInputStream(data);
+		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+		String strLine = br.readLine();
+		if (!strLine.contains("vertices") || !strLine.contains("edges")) {
+		    System.err.println("Invalid graph file format. Offending line: " + strLine);
+		    System.exit(-1);	    
 		}
-	}else{
-		for (int i = 0; i < numVertices; i++) {
-			adjacencyListSet.add(new HashSet<Integer>());
-		}
-	}
-	
-	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+		String parts[] = strLine.split(", ");
+		int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
+		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
+	 
+		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
 		
-		int previous = 0;
-		int current = strLine.indexOf(':', 0);
-		int vertex = Integer.parseInt(strLine.substring(0,current));
-		current = strLine.indexOf(' ',previous+1);
-		while(current < strLine.length() - 1){
-			previous = current;
-			current = strLine.indexOf(' ',previous+1);
-			int part = Integer.parseInt(strLine.substring(previous+1,current));
-			if(part > vertex)
-				adjacencyListSet.get(vertex).add(part);
-		}
-		
-		/*
-	    StringTokenizer st1 = new StringTokenizer(strLine,": ");
-	    int vertex = Integer.parseInt(st1.nextToken());
-		while(st1.hasMoreTokens()){
-			int part = Integer.parseInt(st1.nextToken());
-			if(part > vertex){
-				adjacencyListSet.get(vertex).add(part);
+		if(numVertices < 200000){
+			//doesn't work for 1 million, java out of memory on heap
+			for (int i = 0; i < numVertices; i++) {
+				//adjacencyListSet.add(new HashSet<Integer>());
+				adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+			}
+		}else{
+			for (int i = 0; i < numVertices; i++) {
+				adjacencyListSet.add(new HashSet<Integer>());
 			}
 		}
-		*/
-	}
-	br.close();
-	return adjacencyListSet;
+		
+		long startTime = System.currentTimeMillis();
+		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+			
+			int previous = 0;
+			int current = strLine.indexOf(':', 0);
+			int vertex = Integer.parseInt(strLine.substring(0,current));
+			current = strLine.indexOf(' ',previous+1);
+			while(current < strLine.length() - 1){
+				previous = current;
+				current = strLine.indexOf(' ',previous+1);
+				int part = Integer.parseInt(strLine.substring(previous+1,current));
+				if(part > vertex)
+					adjacencyListSet.get(vertex).add(part);
+			}
+		}
+		br.close();
+		System.out.println("Multi " + String.valueOf(System.currentTimeMillis() - startTime));
+		return adjacencyListSet;
+    }
+
+	public ArrayList<HashSet<Integer>> getAdjacencyListSetMultiThread(byte[] data) throws IOException, InterruptedException {
+		InputStream istream = new ByteArrayInputStream(data);
+		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+		String strLine = br.readLine();
+		if (!strLine.contains("vertices") || !strLine.contains("edges")) {
+		    System.err.println("Invalid graph file format. Offending line: " + strLine);
+		    System.exit(-1);	    
+		}
+		String parts[] = strLine.split(", ");
+		int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
+		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
+	 
+		final List<HashSet<Integer>> adjacencyListSet = Collections.synchronizedList(new ArrayList<HashSet<Integer>>());
+		
+		long startTime = System.currentTimeMillis();
+		if(numVertices < 200000){
+			//doesn't work for 1 million, java out of memory on heap
+			for (int i = 0; i < numVertices; i++) {
+				//adjacencyListSet.add(new HashSet<Integer>());
+				adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+			}
+		}else{
+			for (int i = 0; i < numVertices; i++) {
+				adjacencyListSet.add(new HashSet<Integer>());
+			}
+		}
+		System.out.println("init hash " + String.valueOf(System.currentTimeMillis() - startTime));
+
+
+		startTime = System.currentTimeMillis();
+		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
+
+		while ((strLine = br.readLine()) != null && !strLine.equals(""))
+		{
+			final String currentLine = strLine;
+			threadPool.submit(new Runnable()
+			{
+				public void run()
+				{
+					int previous = 0;
+					int current = currentLine.indexOf(':', 0);
+					int vertex = Integer.parseInt(currentLine.substring(0,current));
+					current = currentLine.indexOf(' ',previous+1);
+					while(current < currentLine.length() - 1)
+					{
+						previous = current;
+						current = currentLine.indexOf(' ',previous+1);
+						int part = Integer.parseInt(currentLine.substring(previous+1,current));
+						if(part > vertex)
+						{
+							synchronized(adjacencyListSet)
+							{
+								adjacencyListSet.get(vertex).add(part);
+							}
+						}
+					}
+				}
+			});
+		}
+		br.close();
+		threadPool.shutdown();
+		threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		System.out.println("Multi " + String.valueOf(System.currentTimeMillis() - startTime));
+		return new ArrayList<HashSet<Integer>>(adjacencyListSet);
     }
 	
     public ArrayList<ArrayList<Integer>> getAdjacencyList(byte[] data) throws IOException {
