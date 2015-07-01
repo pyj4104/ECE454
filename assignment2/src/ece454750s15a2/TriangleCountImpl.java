@@ -14,44 +14,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class TriangleCountImpl {
-
-	class MultiEdge{
-		int v1;
-		int v2;
-		int v3;
-		public MultiEdge(int vertex1, int vertex2, int vertex3){
-			v1 = vertex1;
-			v2 = vertex2;
-			v3 = vertex3;
-		}
-		public int hashCode() {
-			final int prime = 17;
-			int result = 7;
-			result = prime * result + v1;
-			result = prime * result + v2;
-			result = prime * result + v3;
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			MultiEdge other = (MultiEdge) obj;
-			if (v1 != other.v1)
-				return false;
-			if (v2 != other.v2)
-				return false;
-			if (v3 != other.v3)
-				return false;
-			return true;
-		}
-	}
-
     private byte[] input;
     private int numCores;
 	private volatile List<Triangle> ret;
@@ -70,9 +32,40 @@ public class TriangleCountImpl {
     }
 
     public List<Triangle> enumerateTriangles() throws IOException, InterruptedException {
+		return multiThread();
+    }
+    public List<Triangle> singleThread() throws IOException {
+		// this code is single-threaded and ignores numCores
+		ArrayList<Triangle> ret = new ArrayList<Triangle>();
+		
+		//Edge iterator algorithm
+		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		int numVertices = adjacencyList.size();
+		for(int i = 0; i < numVertices; i++){
+			HashSet<Integer> neighbours = adjacencyList.get(i);
+			Iterator<Integer> it = neighbours.iterator();
+			while(it.hasNext()){
+				Integer j = it.next();
+				if(i<j){
+					boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+					common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+					for(Integer k : common){
+						if(k>j){
+							ret.add(new Triangle(i,j,k));
+						}
+					}
+				}
+			}
+		}
+		
+		return ret;
+    }
+
+    public List<Triangle> multiThread() throws IOException, InterruptedException {
 		// this code is single-threaded and ignores numCores
 		ret = Collections.synchronizedList(new ArrayList<Triangle>());
-		ExecutorService threadPool = Executors.newFixedThreadPool(10);
+		ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
 		//Edge iterator algorithm
 		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
@@ -226,7 +219,12 @@ public class TriangleCountImpl {
 			}
 		}
 		
-		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+		/*for(int i = 0; i < numVertices; i++)
+		{
+
+		}*/
+
+		while ((strLine = br.readLine()) != null && !strLine.equals("")) {
 		    StringTokenizer st1 = new StringTokenizer(strLine,": ");
 		    int vertex = Integer.parseInt(st1.nextToken());
 		    if (st1.hasMoreTokens()) {
