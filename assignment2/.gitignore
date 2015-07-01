@@ -1,6 +1,7 @@
 *.class
 *.txt
 *.tar.gz
+*.orig
 
 #include smaller test files
 !samplegraph.txt
