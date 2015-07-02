@@ -83,6 +83,7 @@ public class TriangleCountImpl {
 				public void run(){
 					HashSet<Integer> neighbours = adjacencyList.get(iSub);
 					Iterator<Integer> it = neighbours.iterator();
+					ArrayList<Triangle> subSet = new ArrayList<Triangle>();
 					while(it.hasNext()){
 						Integer j = it.next();
 						if(iSub<j){
@@ -91,13 +92,14 @@ public class TriangleCountImpl {
 							common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
 							for(Integer k : common){
 								if(k>j){
-									synchronized(ret)
-									{
-										ret.add(new Triangle(iSub,j,k));
-									}
+									subSet.add(new Triangle(iSub, j, k));
 								}
 							}
 						}
+					}
+					synchronized(ret)
+					{
+						ret.addAll(subSet);
 					}
 				}
      		});
