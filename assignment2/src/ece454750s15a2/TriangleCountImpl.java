@@ -34,10 +34,11 @@ public class TriangleCountImpl {
 		if(numCores == 1){
 			return singleThread();
 		}else{
-			return multiThread(numCores);
+			return multiThread();
 		}
     }
-    public List<Triangle> singleThread() throws IOException, InterruptedException, ExecutionException {
+
+    public List<Triangle> multiThread() throws IOException, InterruptedException, ExecutionException {
 		// this code is single-threaded and ignores numCores
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
 		
@@ -126,43 +127,74 @@ public class TriangleCountImpl {
 		return ret;
     }
 
-    public List<Triangle> multiThread(int numCores) throws IOException, InterruptedException {
+    public List<Triangle> singleThread() throws IOException {
 		// this code is single-threaded and ignores numCores
-		final List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
-		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
+		ArrayList<Triangle> ret = new ArrayList<Triangle>();
+		
+		// forward
+		Map<Integer,HashSet<Integer>> adjacencyMap = getAdjacencyMap(input);
+		int numVertices = adjacencyMap.size();
 
-		//Edge iterator algorithm
-		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		Map<Integer,HashSet<Integer>> dynamicA = new HashMap<Integer, HashSet<Integer>>();
 
-		int numVertices = adjacencyList.size();
-		for(int i = 0; i < numVertices; i++){
-			final int iSub = i;
-			threadPool.submit(new Runnable(){
-				public void run(){
-					HashSet<Integer> neighbours = adjacencyList.get(iSub);
-					Iterator<Integer> it = neighbours.iterator();
-					while(it.hasNext()){
-						Integer j = it.next();
-						if(iSub<j){
-							boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
-							List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
-							common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
-							for(Integer k : common){
-								if(k>j){
-									synchronized(ret)
-									{
-										ret.add(new Triangle(iSub,j,k));
-									}
-								}
-							}
-						}
-					}
-				}
-     		});
+		for(int i = 0; i < numVertices; i++) {
+			dynamicA.put(i, new HashSet<Integer>());
 		}
 
-		threadPool.shutdown();
-		threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		// System.out.println(adjacencyMap.toString());
+
+		// Iterator itMap = adjacencyMap.entrySet().iterator();
+  //   	while (itMap.hasNext()) {
+
+		for(int i = 0; i < numVertices; i++){
+   //  		Map.Entry pair = (Map.Entry)itMap.next();
+			// int i = (Integer) pair.getKey();
+			// HashSet<Integer> neighbours = (HashSet<Integer>) pair.getValue();
+
+			HashSet<Integer> neighbours = adjacencyMap.get(i);
+			Iterator<Integer> itN = neighbours.iterator();
+			while(itN.hasNext()){
+				Integer j = itN.next();
+				if(i < j) {
+
+					// A(s) intersection A(t)
+					boolean set1Larger = dynamicA.get(j).size() > dynamicA.get(i).size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? dynamicA.get(i) : dynamicA.get(j));
+					common.retainAll(set1Larger ? dynamicA.get(j) : dynamicA.get(i));
+
+					for(Integer k : common){
+							ret.add(new Triangle(k,i,j));
+					}
+
+					(dynamicA.get(j)).add(i);
+
+					// System.out.println(j + "=" + dynamicA.get(j).toString() + " " + i + "=" + dynamicA.get(i).toString());
+				}
+			}
+    	}
+
+
+
+		//Edge iterator algorithm
+		// ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		// int numVertices = adjacencyList.size();
+		// for(int i = 0; i < numVertices; i++){
+		// 	HashSet<Integer> neighbours = adjacencyList.get(i);
+		// 	Iterator<Integer> it = neighbours.iterator();
+		// 	while(it.hasNext()){
+		// 		Integer j = it.next();
+		// 		if(i<j){
+		// 			boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+		// 			List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+		// 			common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+		// 			for(Integer k : common){
+		// 				if(k>j){
+		// 					ret.add(new Triangle(i,j,k));
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 		
 		return ret;
     }
@@ -228,6 +260,51 @@ public class TriangleCountImpl {
 		return map;
     }
 	
+	public Map<Integer,HashSet<Integer>> getAdjacencyMapMulti(byte[] data) throws IOException, InterruptedException {
+		InputStream istream = new ByteArrayInputStream(data);
+		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+		String strLine = br.readLine();
+		if (!strLine.contains("vertices") || !strLine.contains("edges")) {
+		    System.err.println("Invalid graph file format. Offending line: " + strLine);
+		    System.exit(-1);	    
+		}
+		String parts[] = strLine.split(", ");
+		int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
+		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
+		
+		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
+
+		final Map<Integer, HashSet<Integer>> map = Collections.synchronizedMap(new HashMap<Integer, HashSet<Integer>>(numVertices));
+		while ((strLine = br.readLine()) != null && !strLine.equals("")){
+			parts = strLine.split(": ");
+			final String threadedParts[] = parts;
+			threadPool.submit(new Runnable()
+			{
+				public void run()
+				{
+				    int vertex = Integer.parseInt(threadedParts[0]);
+					HashSet<Integer> list = new HashSet<Integer>();
+				    if (threadedParts.length > 1) {
+						String threadedPartsParts[] = threadedParts[1].split(" +");
+						for (String part: threadedPartsParts) {
+							//if(Integer.parseInt(part) < vertex) // added to only include adjacencies greater than current value
+								list.add(Integer.parseInt(part));
+						}
+				    }
+				    synchronized(map)
+				    {
+						map.put(vertex, list);
+				    }
+				}
+			});
+		}
+		br.close();
+		threadPool.shutdown();
+		threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		return map;
+    }
+	
 	private static Map<Integer, HashSet<Integer>> sortMap(Map<Integer, HashSet<Integer>> map){
  
 		// Convert Map to List
@@ -257,59 +334,59 @@ public class TriangleCountImpl {
 	}
 	
 	public ArrayList<HashSet<Integer>> getAdjacencyListSet(byte[] data) throws IOException {
-	InputStream istream = new ByteArrayInputStream(data);
-	BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-	String strLine = br.readLine();
-	if (!strLine.contains("vertices") || !strLine.contains("edges")) {
-	    System.err.println("Invalid graph file format. Offending line: " + strLine);
-	    System.exit(-1);	    
-	}
-	String parts[] = strLine.split(", ");
-	int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
-	int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
-	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
- 
-	ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
-	
-	if(numVertices < 200000){
-		//doesn't work for 1 million, java out of memory on heap
-		for (int i = 0; i < numVertices; i++) {
-			//adjacencyListSet.add(new HashSet<Integer>());
-			adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+		InputStream istream = new ByteArrayInputStream(data);
+		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
+		String strLine = br.readLine();
+		if (!strLine.contains("vertices") || !strLine.contains("edges")) {
+		    System.err.println("Invalid graph file format. Offending line: " + strLine);
+		    System.exit(-1);	    
 		}
-	}else{
-		for (int i = 0; i < numVertices; i++) {
-			adjacencyListSet.add(new HashSet<Integer>());
-		}
-	}
-	
-	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+		String parts[] = strLine.split(", ");
+		int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
+		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
+		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
+	 
+		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
 		
-		int previous = 0;
-		int current = strLine.indexOf(':', 0);
-		int vertex = Integer.parseInt(strLine.substring(0,current));
-		current = strLine.indexOf(' ',previous+1);
-		while(current < strLine.length() - 1){
-			previous = current;
-			current = strLine.indexOf(' ',previous+1);
-			int part = Integer.parseInt(strLine.substring(previous+1,current));
-			if(part > vertex)
-				adjacencyListSet.get(vertex).add(part);
-		}
-		
-		/*
-	    StringTokenizer st1 = new StringTokenizer(strLine,": ");
-	    int vertex = Integer.parseInt(st1.nextToken());
-		while(st1.hasMoreTokens()){
-			int part = Integer.parseInt(st1.nextToken());
-			if(part > vertex){
-				adjacencyListSet.get(vertex).add(part);
+		if(numVertices < 200000){
+			//doesn't work for 1 million, java out of memory on heap
+			for (int i = 0; i < numVertices; i++) {
+				//adjacencyListSet.add(new HashSet<Integer>());
+				adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+			}
+		}else{
+			for (int i = 0; i < numVertices; i++) {
+				adjacencyListSet.add(new HashSet<Integer>());
 			}
 		}
-		*/
-	}
-	br.close();
-	return adjacencyListSet;
+		
+		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
+			
+			int previous = 0;
+			int current = strLine.indexOf(':', 0);
+			int vertex = Integer.parseInt(strLine.substring(0,current));
+			current = strLine.indexOf(' ',previous+1);
+			while(current < strLine.length() - 1){
+				previous = current;
+				current = strLine.indexOf(' ',previous+1);
+				int part = Integer.parseInt(strLine.substring(previous+1,current));
+				if(part > vertex)
+					adjacencyListSet.get(vertex).add(part);
+			}
+			
+			/*
+		    StringTokenizer st1 = new StringTokenizer(strLine,": ");
+		    int vertex = Integer.parseInt(st1.nextToken());
+			while(st1.hasMoreTokens()){
+				int part = Integer.parseInt(st1.nextToken());
+				if(part > vertex){
+					adjacencyListSet.get(vertex).add(part);
+				}
+			}
+			*/
+		}
+		br.close();
+		return adjacencyListSet;
     }
 	
     public ArrayList<ArrayList<Integer>> getAdjacencyList(byte[] data) throws IOException {
