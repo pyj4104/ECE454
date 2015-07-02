@@ -70,9 +70,7 @@ public class TriangleCountImpl {
 		final List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
 		
 		//Edge iterator algorithm
-		long startTime = System.currentTimeMillis();
 		final ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSetMultiThread(input);
-		System.out.println(System.currentTimeMillis() - startTime);
 		
 		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
 
@@ -262,7 +260,6 @@ public class TriangleCountImpl {
 	 
 		final List<HashSet<Integer>> adjacencyListSet = Collections.synchronizedList(new ArrayList<HashSet<Integer>>());
 		
-		long startTime = System.currentTimeMillis();
 		if(numVertices < 200000){
 			//doesn't work for 1 million, java out of memory on heap
 			for (int i = 0; i < numVertices; i++) {
@@ -274,10 +271,7 @@ public class TriangleCountImpl {
 				adjacencyListSet.add(new HashSet<Integer>());
 			}
 		}
-		System.out.println("init hash " + String.valueOf(System.currentTimeMillis() - startTime));
 
-
-		startTime = System.currentTimeMillis();
 		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
 
 		while ((strLine = br.readLine()) != null && !strLine.equals(""))
@@ -310,7 +304,6 @@ public class TriangleCountImpl {
 		br.close();
 		threadPool.shutdown();
 		threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		System.out.println("Multi " + String.valueOf(System.currentTimeMillis() - startTime));
 		return new ArrayList<HashSet<Integer>>(adjacencyListSet);
     }
 	
