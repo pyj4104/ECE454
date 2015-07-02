@@ -30,60 +30,77 @@ public class TriangleCountImpl {
 		return ret;
     }
 
-    public List<Triangle> enumerateTriangles() throws IOException, InterruptedException {
+    public List<Triangle> enumerateTriangles() throws IOException, InterruptedException, ExecutionException {
 		if(numCores == 1){
 			return singleThread();
 		}else{
 			return multiThread(numCores);
 		}
     }
-    public List<Triangle> singleThread() throws IOException {
+    public List<Triangle> singleThread() throws IOException, InterruptedException, ExecutionException {
 		// this code is single-threaded and ignores numCores
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
 		
 		// forward
-		Map<Integer,HashSet<Integer>> adjacencyMap = getAdjacencyMap(input);
-		int numVertices = adjacencyMap.size();
+		final Map<Integer,HashSet<Integer>> adjacencyMap = getAdjacencyMap(input);
+		final int numVertices = adjacencyMap.size();
+		ArrayList<Future<ArrayList<Triangle>>> future;
 
-		Map<Integer,HashSet<Integer>> dynamicA = new HashMap<Integer, HashSet<Integer>>();
+		final Map<Integer,HashSet<Integer>> dynamicA;
+
+		dynamicA = Collections.synchronizedMap(new HashMap<Integer, HashSet<Integer>>());
+		future = new ArrayList<Future<ArrayList<Triangle>>>();
 
 		for(int i = 0; i < numVertices; i++) {
 			dynamicA.put(i, new HashSet<Integer>());
 		}
 
-		// System.out.println(adjacencyMap.toString());
+		ExecutorService exec = Executors.newFixedThreadPool(numCores);
 
-		// Iterator itMap = adjacencyMap.entrySet().iterator();
-  //   	while (itMap.hasNext()) {
+		for(int k = 0; k < numCores; k++)
+		{
+			final int g = k;
+			Callable<ArrayList<Triangle>> callable = new Callable<ArrayList<Triangle>>()
+			{
+				@Override
+				public ArrayList<Triangle> call()
+				{
+					ArrayList<Triangle> retVal = new ArrayList<Triangle>();
+					for(int i = g*numVertices/numCores; i < (g+1)*numVertices/numCores; i++){
+						HashSet<Integer> neighbours = adjacencyMap.get(i);
+						Iterator<Integer> itN = neighbours.iterator();
+						while(itN.hasNext()){
+							Integer j = itN.next();
+							if(i < j) {
 
-		for(int i = 0; i < numVertices; i++){
-   //  		Map.Entry pair = (Map.Entry)itMap.next();
-			// int i = (Integer) pair.getKey();
-			// HashSet<Integer> neighbours = (HashSet<Integer>) pair.getValue();
+								// A(s) intersection A(t)
+								boolean set1Larger = dynamicA.get(j).size() > dynamicA.get(i).size() ;
+								List<Integer> common = new ArrayList<Integer>(set1Larger ? dynamicA.get(i) : dynamicA.get(j));
+								common.retainAll(set1Larger ? dynamicA.get(j) : dynamicA.get(i));
 
-			HashSet<Integer> neighbours = adjacencyMap.get(i);
-			Iterator<Integer> itN = neighbours.iterator();
-			while(itN.hasNext()){
-				Integer j = itN.next();
-				if(i < j) {
-
-					// A(s) intersection A(t)
-					boolean set1Larger = dynamicA.get(j).size() > dynamicA.get(i).size() ;
-					List<Integer> common = new ArrayList<Integer>(set1Larger ? dynamicA.get(i) : dynamicA.get(j));
-					common.retainAll(set1Larger ? dynamicA.get(j) : dynamicA.get(i));
-
-					for(Integer k : common){
-							ret.add(new Triangle(k,i,j));
-					}
-
-					(dynamicA.get(j)).add(i);
-
-					// System.out.println(j + "=" + dynamicA.get(j).toString() + " " + i + "=" + dynamicA.get(i).toString());
+								for(Integer k : common){
+										retVal.add(new Triangle(k,i,j));
+								}
+								synchronized(dynamicA)
+								{
+									(dynamicA.get(j)).add(i);
+								}
+							}
+						}
+			    	}
+			    	return retVal;
 				}
-			}
-    	}
+			};
+			future.add(exec.submit(callable));
+		}
 
+		exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+		exec.shutdown();
 
+		for(int i = 0; i < numCores; i++)
+		{
+			ret.addAll(future.get(i).get());
+		}
 
 		//Edge iterator algorithm
 		// ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
