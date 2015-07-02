@@ -41,26 +41,70 @@ public class TriangleCountImpl {
 		// this code is single-threaded and ignores numCores
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
 		
-		//Edge iterator algorithm
-		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
-		int numVertices = adjacencyList.size();
+		// forward
+		Map<Integer,HashSet<Integer>> adjacencyMap = getAdjacencyMap(input);
+		int numVertices = adjacencyMap.size();
+
+		Map<Integer,HashSet<Integer>> dynamicA = new HashMap<Integer, HashSet<Integer>>();
+
+		for(int i = 0; i < numVertices; i++) {
+			dynamicA.put(i, new HashSet<Integer>());
+		}
+
+		// System.out.println(adjacencyMap.toString());
+
+		// Iterator itMap = adjacencyMap.entrySet().iterator();
+  //   	while (itMap.hasNext()) {
+
 		for(int i = 0; i < numVertices; i++){
-			HashSet<Integer> neighbours = adjacencyList.get(i);
-			Iterator<Integer> it = neighbours.iterator();
-			while(it.hasNext()){
-				Integer j = it.next();
-				if(i<j){
-					boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
-					List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
-					common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+   //  		Map.Entry pair = (Map.Entry)itMap.next();
+			// int i = (Integer) pair.getKey();
+			// HashSet<Integer> neighbours = (HashSet<Integer>) pair.getValue();
+
+			HashSet<Integer> neighbours = adjacencyMap.get(i);
+			Iterator<Integer> itN = neighbours.iterator();
+			while(itN.hasNext()){
+				Integer j = itN.next();
+				if(i < j) {
+
+					// A(s) intersection A(t)
+					boolean set1Larger = dynamicA.get(j).size() > dynamicA.get(i).size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? dynamicA.get(i) : dynamicA.get(j));
+					common.retainAll(set1Larger ? dynamicA.get(j) : dynamicA.get(i));
+
 					for(Integer k : common){
-						if(k>j){
-							ret.add(new Triangle(i,j,k));
-						}
+							ret.add(new Triangle(k,i,j));
 					}
+
+					(dynamicA.get(j)).add(i);
+
+					// System.out.println(j + "=" + dynamicA.get(j).toString() + " " + i + "=" + dynamicA.get(i).toString());
 				}
 			}
-		}
+    	}
+
+
+
+		//Edge iterator algorithm
+		// ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		// int numVertices = adjacencyList.size();
+		// for(int i = 0; i < numVertices; i++){
+		// 	HashSet<Integer> neighbours = adjacencyList.get(i);
+		// 	Iterator<Integer> it = neighbours.iterator();
+		// 	while(it.hasNext()){
+		// 		Integer j = it.next();
+		// 		if(i<j){
+		// 			boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+		// 			List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+		// 			common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+		// 			for(Integer k : common){
+		// 				if(k>j){
+		// 					ret.add(new Triangle(i,j,k));
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 		
 		return ret;
     }
@@ -135,7 +179,7 @@ public class TriangleCountImpl {
 		return adjacencyMatrix;
     }
 	
-	public Map<Integer,ArrayList<Integer>> getAdjacencyMap(byte[] data) throws IOException {
+	public Map<Integer,HashSet<Integer>> getAdjacencyMap(byte[] data) throws IOException {
 		InputStream istream = new ByteArrayInputStream(data);
 		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
 		String strLine = br.readLine();
@@ -148,11 +192,11 @@ public class TriangleCountImpl {
 		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
 		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
 		
-		Map<Integer, ArrayList<Integer>> map = new HashMap<Integer, ArrayList<Integer>>(numVertices);
+		Map<Integer, HashSet<Integer>> map = new HashMap<Integer, HashSet<Integer>>(numVertices);
 		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
 		    parts = strLine.split(": ");
 		    int vertex = Integer.parseInt(parts[0]);
-			ArrayList<Integer> list = new ArrayList<Integer>();
+			HashSet<Integer> list = new HashSet<Integer>();
 		    if (parts.length > 1) {
 				parts = parts[1].split(" +");
 				for (String part: parts) {
@@ -163,19 +207,19 @@ public class TriangleCountImpl {
 			map.put(vertex, list);
 		}
 		br.close();
-		map = sortMap(map);
+		// map = sortMap(map);
 		return map;
     }
 	
-	private static Map<Integer, ArrayList<Integer>> sortMap(Map<Integer, ArrayList<Integer>> map){
+	private static Map<Integer, HashSet<Integer>> sortMap(Map<Integer, HashSet<Integer>> map){
  
 		// Convert Map to List
-		List<Map.Entry<Integer, ArrayList<Integer>>> list = 
-			new ArrayList<Map.Entry<Integer, ArrayList<Integer>>>(map.entrySet());
+		List<Map.Entry<Integer, HashSet<Integer>>> list = 
+			new ArrayList<Map.Entry<Integer, HashSet<Integer>>>(map.entrySet());
  
 		// Sort list with comparator, to compare the Map values
-		Collections.sort(list, new Comparator<Map.Entry<Integer, ArrayList<Integer>>>() {
-			public int compare(Map.Entry<Integer, ArrayList<Integer>> e1, Map.Entry<Integer, ArrayList<Integer>> e2) {
+		Collections.sort(list, new Comparator<Map.Entry<Integer, HashSet<Integer>>>() {
+			public int compare(Map.Entry<Integer, HashSet<Integer>> e1, Map.Entry<Integer, HashSet<Integer>> e2) {
 				if (e1.getValue().size() < e2.getValue().size()) {
 					return 1;
 				} else if (e1.getValue().size() > e2.getValue().size()) {
@@ -187,9 +231,9 @@ public class TriangleCountImpl {
 		});
  
 		// Convert sorted map back to a Map, LinedHashMap preserves iterative order
-		Map<Integer, ArrayList<Integer>> sortedMap = new LinkedHashMap<Integer, ArrayList<Integer>>();
-		for (Iterator<Map.Entry<Integer, ArrayList<Integer>>> it = list.iterator(); it.hasNext();) {
-			Map.Entry<Integer, ArrayList<Integer>> entry = it.next();
+		Map<Integer, HashSet<Integer>> sortedMap = new LinkedHashMap<Integer, HashSet<Integer>>();
+		for (Iterator<Map.Entry<Integer, HashSet<Integer>>> it = list.iterator(); it.hasNext();) {
+			Map.Entry<Integer, HashSet<Integer>> entry = it.next();
 			sortedMap.put(entry.getKey(), entry.getValue());
 		}
 		return sortedMap;
