@@ -215,9 +215,11 @@ public class TriangleCountImpl {
 		
 		if(numVertices < 200000){
 			//doesn't work for 1 million, java out of memory on heap
+			System.out.println((int)((1.3- ((double)100/numVertices))*numEdges/numVertices*2));
+			System.out.println((int)((1.3- ((double)99900/numVertices))*numEdges/numVertices*2));
 			for (int i = 0; i < numVertices; i++) {
 				//adjacencyListSet.add(new HashSet<Integer>());
-				adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
+				adjacencyListSet.add(new HashSet<Integer>((int)((1.3- ((double)i/numVertices))*numEdges/numVertices*2)));
 			}
 		}else{
 			for (int i = 0; i < numVertices; i++) {
@@ -241,7 +243,7 @@ public class TriangleCountImpl {
 			}
 		}
 		br.close();
-		System.out.println("Multi " + String.valueOf(System.currentTimeMillis() - startTime));
+		System.out.println("I/O single " + String.valueOf(System.currentTimeMillis() - startTime));
 		return adjacencyListSet;
     }
 
