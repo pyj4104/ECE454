@@ -16,10 +16,12 @@ import java.util.concurrent.*;
 public class TriangleCountImpl {
     private byte[] input;
     private int numCores;
+    private static Map<Integer,Integer> injectiveMap;
 
     public TriangleCountImpl(byte[] input, int numCores) {
-	this.input = input;
-	this.numCores = numCores;
+		this.input = input;
+		this.numCores = numCores;
+		this.injectiveMap = new LinkedHashMap<Integer,Integer>();
     }
 
     public List<String> getGroupMembers() {
@@ -140,40 +142,82 @@ public class TriangleCountImpl {
 		for(int i = 0; i < numVertices; i++) {
 			dynamicA.put(i, new HashSet<Integer>());
 		}
-
+		int count = 0; // count the number of triangles
 		// System.out.println(adjacencyMap.toString());
+		// System.out.println(injectiveMap.toString());
 
-		// Iterator itMap = adjacencyMap.entrySet().iterator();
-  //   	while (itMap.hasNext()) {
+		Iterator itMap = injectiveMap.entrySet().iterator();
+  		while (itMap.hasNext()) {
+			Map.Entry pair = (Map.Entry)itMap.next();
+			int i = (Integer) pair.getKey();
+			HashSet<Integer> neighbours = (HashSet<Integer>) adjacencyMap.get(i);
+			int v = injectiveMap.get(i);
 
-		for(int i = 0; i < numVertices; i++){
-   //  		Map.Entry pair = (Map.Entry)itMap.next();
-			// int i = (Integer) pair.getKey();
-			// HashSet<Integer> neighbours = (HashSet<Integer>) pair.getValue();
-
-			HashSet<Integer> neighbours = adjacencyMap.get(i);
 			Iterator<Integer> itN = neighbours.iterator();
-			while(itN.hasNext()){
-				Integer j = itN.next();
-				if(i < j) {
+			while (itN.hasNext()) {
+				int j = itN.next();
+				int u = injectiveMap.get(j);
+				
+				// System.out.println("j = " + j + " " + "i = " + i);
+				
+				if (u > v) {
 
 					// A(s) intersection A(t)
 					boolean set1Larger = dynamicA.get(j).size() > dynamicA.get(i).size() ;
 					List<Integer> common = new ArrayList<Integer>(set1Larger ? dynamicA.get(i) : dynamicA.get(j));
 					common.retainAll(set1Larger ? dynamicA.get(j) : dynamicA.get(i));
 
-					for(Integer k : common){
-							ret.add(new Triangle(k,i,j));
+					for (Integer k : common) {
+						count++;
+						
+						// Store in sorted order
+						int min, max, med;
+						if (i > j) {
+							if (i > k) {
+								max = i;
+								if (j > k) {
+									med = j;
+									min = k;
+								} else {
+									med = k;
+									min = j;
+								}
+							} else {
+								med = i;
+								if (j > k) {
+									max = j;
+									min = k;
+								} else {
+									max = k;
+									min = j;
+								}
+							}
+						} else {
+							if (j > k) {
+								max = j;
+								if (i > k) {
+									med = i;
+									min = k;
+								} else {
+									med = k;
+									min = i;
+								}
+							} else {
+								med = j;
+								max = k;
+								min = i;
+							}
+						}
+
+						ret.add(new Triangle(min,med,max));
 					}
 
 					(dynamicA.get(j)).add(i);
-
 					// System.out.println(j + "=" + dynamicA.get(j).toString() + " " + i + "=" + dynamicA.get(i).toString());
 				}
 			}
     	}
-
-
+    	System.out.println("count = " + count);
 
 		//Edge iterator algorithm
 		// ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
@@ -256,7 +300,7 @@ public class TriangleCountImpl {
 			map.put(vertex, list);
 		}
 		br.close();
-		// map = sortMap(map);
+		map = sortMap(map);
 		return map;
     }
 	
@@ -323,12 +367,13 @@ public class TriangleCountImpl {
 				}
 			}
 		});
- 
+ 		int i = 0;
 		// Convert sorted map back to a Map, LinedHashMap preserves iterative order
 		Map<Integer, HashSet<Integer>> sortedMap = new LinkedHashMap<Integer, HashSet<Integer>>();
 		for (Iterator<Map.Entry<Integer, HashSet<Integer>>> it = list.iterator(); it.hasNext();) {
 			Map.Entry<Integer, HashSet<Integer>> entry = it.next();
 			sortedMap.put(entry.getKey(), entry.getValue());
+			injectiveMap.put(entry.getKey(), i++);
 		}
 		return sortedMap;
 	}
