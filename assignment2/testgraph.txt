@@ -1,4 +1,4 @@
-5 vertices, 5 edges 
+5 vertices, 7 edges 
 0: 1 2 3 4 
 1: 0 2 3 
 2: 0 1 

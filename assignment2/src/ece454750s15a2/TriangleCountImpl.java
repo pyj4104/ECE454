@@ -199,51 +199,39 @@ public class TriangleCountImpl {
 	}
 	
 	public ArrayList<HashSet<Integer>> getAdjacencyListSet(byte[] data) throws IOException {
-		InputStream istream = new ByteArrayInputStream(data);
-		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-		String strLine = br.readLine();
-		if (!strLine.contains("vertices") || !strLine.contains("edges")) {
-		    System.err.println("Invalid graph file format. Offending line: " + strLine);
+		String inputString = new String(data);
+		//System.out.println("Input is " + inputString);
+		String[] inputLines = inputString.split("[\\r\\n]+");
+		if (!inputLines[0].contains("vertices") || !inputLines[0].contains("edges")) {
+		    System.err.println("Invalid graph file format. Offending line: " + inputLines[0]);
 		    System.exit(-1);	    
 		}
-		String parts[] = strLine.split(", ");
+		String parts[] = inputLines[0].split(", ");
 		int numVertices = Integer.parseInt(parts[0].split(" ")[0]);
 		int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
 		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
-	 
-		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
 		
-		if(numVertices < 200000){
-			//doesn't work for 1 million, java out of memory on heap
-			System.out.println((int)((1.3- ((double)100/numVertices))*numEdges/numVertices*2));
-			System.out.println((int)((1.3- ((double)99900/numVertices))*numEdges/numVertices*2));
-			for (int i = 0; i < numVertices; i++) {
-				//adjacencyListSet.add(new HashSet<Integer>());
-				adjacencyListSet.add(new HashSet<Integer>((int)((1.3- ((double)i/numVertices))*numEdges/numVertices*2)));
-			}
-		}else{
-			for (int i = 0; i < numVertices; i++) {
-				adjacencyListSet.add(new HashSet<Integer>());
-			}
+		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
+		for (int i = 0; i < numVertices; i++) {
+			//adjacencyListSet.add(new HashSet<Integer>());
+			adjacencyListSet.add(new HashSet<Integer>((int)((1.3- ((double)i/numVertices))*numEdges/numVertices)));
 		}
 		
-		long startTime = System.currentTimeMillis();
-		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
-			
+		//long startTime = System.currentTimeMillis();
+		for(int i = 1; i < inputLines.length; i++)   {
 			int previous = 0;
-			int current = strLine.indexOf(':', 0);
-			int vertex = Integer.parseInt(strLine.substring(0,current));
-			current = strLine.indexOf(' ',previous+1);
-			while(current < strLine.length() - 1){
+			int current = inputLines[i].indexOf(':', 0);
+			int vertex = Integer.parseInt(inputLines[i].substring(0,current));
+			current = inputLines[i].indexOf(' ',previous+1);
+			while(current < inputLines[i].length() - 1){
 				previous = current;
-				current = strLine.indexOf(' ',previous+1);
-				int part = Integer.parseInt(strLine.substring(previous+1,current));
+				current = inputLines[i].indexOf(' ',previous+1);
+				int part = Integer.parseInt(inputLines[i].substring(previous+1,current));
 				if(part > vertex)
 					adjacencyListSet.get(vertex).add(part);
 			}
 		}
-		br.close();
-		System.out.println("I/O single " + String.valueOf(System.currentTimeMillis() - startTime));
+		//System.out.println("I/O single " + String.valueOf(System.currentTimeMillis() - startTime));
 		return adjacencyListSet;
     }
 
