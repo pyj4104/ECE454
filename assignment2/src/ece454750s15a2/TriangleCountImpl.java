@@ -34,7 +34,7 @@ public class TriangleCountImpl {
 
     public List<Triangle> enumerateTriangles() throws IOException, InterruptedException, ExecutionException {
 		if(numCores == 1){
-			return singleThread();
+			return singleThreadList();
 		}else{
 			return multiThread();
 		}
@@ -128,10 +128,85 @@ public class TriangleCountImpl {
 		
 		return ret;
     }
-
+	public List<Triangle> singleThreadList() throws IOException {
+		ArrayList<Triangle> ret = new ArrayList<Triangle>();
+		
+		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		//System.out.println("List: " + adjacencyList);
+		int numVertices = adjacencyList.size();
+		ArrayList<Integer> order = sortList(adjacencyList);
+		HashMap <Integer,Integer> injectiveMap = new HashMap<Integer,Integer>(((int)(numVertices*4.0/3.0)) + 1);
+		//System.out.println("Order: " + order);
+		ArrayList<HashSet<Integer>> subList = new ArrayList<HashSet<Integer>>(adjacencyList.size());
+		
+		for (int i = 0; i < numVertices; i++) {
+			subList.add(new HashSet<Integer>());
+			injectiveMap.put(order.get(i),i);
+		}
+		//System.out.println("Injective Mapping: " + injectiveMap);
+		for(int i = 0; i < numVertices; i++){
+			int current = order.get(i);
+			HashSet<Integer> neighbours = adjacencyList.get(current);
+			for(Integer j : neighbours){
+				//degree of neighbour < current, or injective neighbour > current
+				//System.out.printf("current: %s, neighbour: %s\n", current,j);
+				if(injectiveMap.get(current)<injectiveMap.get(j)){
+					boolean set1Larger = subList.get(j).size()>subList.get(current).size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? subList.get(current):subList.get(j));
+					common.retainAll(set1Larger ? subList.get(j):subList.get(current));
+					for(Integer k : common){
+						// Store in sorted order
+						int min, max, med;
+						if (current > j) {
+							if (current > k) {
+								max = current;
+								if (j > k) {
+									med = j;
+									min = k;
+								} else {
+									med = k;
+									min = j;
+								}
+							} else {
+								med = current;
+								if (j > k) {
+									max = j;
+									min = k;
+								} else {
+									max = k;
+									min = j;
+								}
+							}
+						} else {
+							if (j > k) {
+								max = j;
+								if (current > k) {
+									med = current;
+									min = k;
+								} else {
+									med = k;
+									min = current;
+								}
+							} else {
+								med = j;
+								max = k;
+								min = current;
+							}
+						}
+						ret.add(new Triangle(min,med,max));
+					}
+					if(!(subList.get(j)).contains(current)){
+						(subList.get(j)).add(current);
+					}
+				}
+			}
+		}
+		return ret;
+	}
     public List<Triangle> singleThread() throws IOException {
 		// this code is single-threaded and ignores numCores
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
+		
 		
 		// forward
 		Map<Integer,HashSet<Integer>> adjacencyMap = getAdjacencyMap(input);
@@ -218,28 +293,28 @@ public class TriangleCountImpl {
 			}
     	}
     	System.out.println("count = " + count);
-
-		//Edge iterator algorithm
-		// ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
-		// int numVertices = adjacencyList.size();
-		// for(int i = 0; i < numVertices; i++){
-		// 	HashSet<Integer> neighbours = adjacencyList.get(i);
-		// 	Iterator<Integer> it = neighbours.iterator();
-		// 	while(it.hasNext()){
-		// 		Integer j = it.next();
-		// 		if(i<j){
-		// 			boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
-		// 			List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
-		// 			common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
-		// 			for(Integer k : common){
-		// 				if(k>j){
-		// 					ret.add(new Triangle(i,j,k));
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
-		
+		/*
+		Edge iterator algorithm
+		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
+		int numVertices = adjacencyList.size();
+		for(int i = 0; i < numVertices; i++){
+			HashSet<Integer> neighbours = adjacencyList.get(i);
+			Iterator<Integer> it = neighbours.iterator();
+			while(it.hasNext()){
+				Integer j = it.next();
+				if(i<j){
+					boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+					List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+					common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+					for(Integer k : common){
+						if(k>j){
+							ret.add(new Triangle(i,j,k));
+						}
+					}
+				}
+			}
+		}
+		*/
 		return ret;
     }
 
@@ -300,7 +375,6 @@ public class TriangleCountImpl {
 			map.put(vertex, list);
 		}
 		br.close();
-		map = sortMap(map);
 		return map;
     }
 	
@@ -350,7 +424,7 @@ public class TriangleCountImpl {
     }
 	
 	private static Map<Integer, HashSet<Integer>> sortMap(Map<Integer, HashSet<Integer>> map){
- 
+		
 		// Convert Map to List
 		List<Map.Entry<Integer, HashSet<Integer>>> list = 
 			new ArrayList<Map.Entry<Integer, HashSet<Integer>>>(map.entrySet());
@@ -378,6 +452,48 @@ public class TriangleCountImpl {
 		return sortedMap;
 	}
 	
+	public int partition(ArrayList<Integer> values, ArrayList<Integer> position, int left, int right)
+	{
+		int i = left, j = right;
+		int tmp;
+		int pivot = values.get((left + right) / 2);
+
+		while (i <= j) {
+			// uses > instead of < for reverse sort, same for next while loop
+			while (values.get(i) > pivot)
+				i++;
+			while (values.get(j)< pivot)
+				j--;
+			if (i <= j) {
+				Collections.swap(values,i,j);
+				Collections.swap(position,i,j);
+				i++;
+				j--;
+			}
+		};
+
+		return i;
+	}
+	 
+	public void quickSort(ArrayList<Integer> values, ArrayList<Integer> position, int left, int right) {
+		int index = partition(values, position, left, right);
+		if (left < index - 1)
+			quickSort(values, position, left, index - 1);
+		if (index < right)
+			quickSort(values, position, index, right);
+	}
+	
+	public ArrayList<Integer> sortList(ArrayList<HashSet<Integer>> adjacencyList){
+		ArrayList<Integer> values = new ArrayList<Integer>(adjacencyList.size());
+		ArrayList<Integer> position = new ArrayList<Integer>(adjacencyList.size());
+		for(int i = 0; i < adjacencyList.size(); i++){
+			values.add(adjacencyList.get(i).size());
+			position.add(i);
+		}
+		quickSort(values,position,0,values.size()-1);
+		return position;
+	}
+	
 	public ArrayList<HashSet<Integer>> getAdjacencyListSet(byte[] data) throws IOException {
 		InputStream istream = new ByteArrayInputStream(data);
 		BufferedReader br = new BufferedReader(new InputStreamReader(istream));
@@ -392,17 +508,9 @@ public class TriangleCountImpl {
 		System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
 	 
 		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
-		
-		if(numVertices < 200000){
-			//doesn't work for 1 million, java out of memory on heap
-			for (int i = 0; i < numVertices; i++) {
-				//adjacencyListSet.add(new HashSet<Integer>());
-				adjacencyListSet.add(new HashSet<Integer>((numVertices-i)/((numEdges*3)/(numVertices-i))));
-			}
-		}else{
-			for (int i = 0; i < numVertices; i++) {
-				adjacencyListSet.add(new HashSet<Integer>());
-			}
+		for (int i = 0; i < numVertices; i++) {
+			//adjacencyListSet.add(new HashSet<Integer>());
+			adjacencyListSet.add(new HashSet<Integer>((int)((1.25- ((double)i/numVertices))*numEdges/numVertices*2)));
 		}
 		
 		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
@@ -415,7 +523,7 @@ public class TriangleCountImpl {
 				previous = current;
 				current = strLine.indexOf(' ',previous+1);
 				int part = Integer.parseInt(strLine.substring(previous+1,current));
-				if(part > vertex)
+				//if(part > vertex)
 					adjacencyListSet.get(vertex).add(part);
 			}
 			
