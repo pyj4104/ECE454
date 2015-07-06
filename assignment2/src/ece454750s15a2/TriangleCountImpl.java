@@ -42,9 +42,9 @@ public class TriangleCountImpl {
 		ArrayList<Triangle> ret = new ArrayList<Triangle>();
 		
 		//Edge iterator algorithm
-		long startTime = System.currentTimeMillis();
+		//long startTime = System.currentTimeMillis();
 		ArrayList<HashSet<Integer>> adjacencyList = getAdjacencyListSet(input);
-		System.out.println("io:" + String.valueOf(System.currentTimeMillis() - startTime));
+		//System.out.println("io:" + String.valueOf(System.currentTimeMillis() - startTime));
 		int numVertices = adjacencyList.size();
 		for(int i = 0; i < numVertices; i++){
 			HashSet<Integer> neighbours = adjacencyList.get(i);
@@ -154,7 +154,6 @@ public class TriangleCountImpl {
 			adjacencyListSet.add(new HashSet<Integer>((int)((1.3- ((double)i/numVertices))*numEdges/numVertices)));
 		}
 		
-		//long startTime = System.currentTimeMillis();
 		while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
 			
 			int previous = 0;
@@ -169,14 +168,12 @@ public class TriangleCountImpl {
 					adjacencyListSet.get(vertex).add(part);
 			}
 		}
-		//System.out.println("I/O single " + String.valueOf(System.currentTimeMillis() - startTime));
 		return adjacencyListSet;
     }
 
 	public ArrayList<HashSet<Integer>> getAdjacencyListSetMulti(byte[] data) throws IOException, InterruptedException,
 	ExecutionException {
 		String inputString = new String(data);
-		//System.out.println("Input is " + inputString);
 		final String[] inputLines = inputString.split("[\\r\\n]+");
 		if (!inputLines[0].contains("vertices") || !inputLines[0].contains("edges")) {
 		    System.err.println("Invalid graph file format. Offending line: " + inputLines[0]);
@@ -191,7 +188,6 @@ public class TriangleCountImpl {
 		ArrayList<HashSet<Integer>> adjacencyListSet = new ArrayList<HashSet<Integer>>(numVertices);
 		ExecutorService executor = Executors.newFixedThreadPool(numCores);
 
-		//long startTime = System.currentTimeMillis();
 		for(int j = 0; j < numCores; j++)
 		{
 			final int startingPoint = j*numVertices/numCores+1;
@@ -202,7 +198,6 @@ public class TriangleCountImpl {
 				@Override
 				public ArrayList<HashSet<Integer>> call()
 				{
-					//System.out.println(startingPoint + " ~ " + endPoint);
 					ArrayList<HashSet<Integer>> retVal = new ArrayList<HashSet<Integer>>(endPoint - startingPoint);
 					for(int i = 0; i < endPoint - startingPoint; i++){
 						retVal.add(new HashSet<Integer>());
@@ -216,13 +211,11 @@ public class TriangleCountImpl {
 						while(current < inputLines[i].length() - 1){
 							previous = current;
 							current = inputLines[i].indexOf(' ',previous+1);
-							//System.out.printf("vertex %s Current %s, previous %s \n",vertex,current,previous);
 							int part = Integer.parseInt(inputLines[i].substring(previous+1,current));
 							if(part > vertex)
 								retVal.get(index).add(part);
 						}
 					}
-					//System.out.printf("retval from %d to %d is %s\n",startingPoint,endPoint,retVal);
 					return retVal;
 				}
 			};
@@ -237,10 +230,6 @@ public class TriangleCountImpl {
 			//System.out.println(future.get(i).size());
 			adjacencyListSet.addAll(future.get(i).get());
 		}
-
-		//System.out.println("set: " + adjacencyListSet);
-
-		//System.out.println("I/O single " + String.valueOf(System.currentTimeMillis() - startTime));
 		return adjacencyListSet;
     }
 }
