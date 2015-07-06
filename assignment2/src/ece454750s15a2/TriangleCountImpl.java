@@ -69,7 +69,7 @@ public class TriangleCountImpl {
 
     public List<Triangle> multiThread(int numCores) throws IOException, InterruptedException, ExecutionException {
 		// this code is single-threaded and ignores numCores
-		final List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
+		final List<Triangle> ret = new ArrayList<Triangle>();
 		
 		//Edge iterator algorithm
 		long startTime = System.currentTimeMillis();
@@ -83,40 +83,55 @@ public class TriangleCountImpl {
 			adjacencyList = getAdjacencyListSetMulti(input);
 		}
 		System.out.println("io:" + String.valueOf(System.currentTimeMillis() - startTime));
+		final Integer chunkSize = 50;
 		ExecutorService threadPool = Executors.newFixedThreadPool(numCores);
+		List<Future<ArrayList<Triangle>>> list = new ArrayList<Future<ArrayList<Triangle>>>();
 
 		int numVertices = adjacencyList.size();
-		for(int i = 0; i < numVertices; i++){
-			final int iSub = i;
-			threadPool.submit(new Runnable(){
-				public void run(){
-					HashSet<Integer> neighbours = adjacencyList.get(iSub);
-					Iterator<Integer> it = neighbours.iterator();
+		for(int z = 0; z < numVertices/chunkSize; z++)
+		{
+			final int startingPoint = z*chunkSize;
+			final int endPoint = (z+1)*chunkSize;
+
+			Callable<ArrayList<Triangle>> callable = new Callable<ArrayList<Triangle>>()
+			{
+				@Override
+				public ArrayList<Triangle> call()
+				{
 					ArrayList<Triangle> subSet = new ArrayList<Triangle>();
-					while(it.hasNext()){
-						Integer j = it.next();
-						if(iSub<j){
-							boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
-							List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
-							common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
-							for(Integer k : common){
-								if(k>j){
-									subSet.add(new Triangle(iSub, j, k));
+					for(int i = startingPoint; i < endPoint; i++)
+					{
+						HashSet<Integer> neighbours = adjacencyList.get(i);
+						Iterator<Integer> it = neighbours.iterator();
+						while(it.hasNext()){
+							Integer j = it.next();
+							if(i<j){
+								boolean set1Larger = adjacencyList.get(j).size()>neighbours.size() ;
+								List<Integer> common = new ArrayList<Integer>(set1Larger ? neighbours:adjacencyList.get(j));
+								common.retainAll(set1Larger ? adjacencyList.get(j):neighbours);
+								for(Integer k : common){
+									if(k>j){
+										subSet.add(new Triangle(i, j, k));
+									}
 								}
 							}
 						}
 					}
-					synchronized(ret)
-					{
-						ret.addAll(subSet);
-					}
+					return subSet;
 				}
-     		});
+			};
+			Future<ArrayList<Triangle>> future = threadPool.submit(callable);
+			list.add(future);
 		}
 
+		for(Future<ArrayList<Triangle>> fut: list)
+		{
+			ret.addAll(fut.get());
+		}
+		
 		threadPool.shutdown();
 		threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-		
+
 		return ret;
     }
 	
