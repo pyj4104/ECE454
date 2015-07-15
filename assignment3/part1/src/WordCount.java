@@ -9,6 +9,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -44,7 +45,8 @@ public class WordCount {
           retVal.add("gene_" + String.valueOf(i));
         }
       }
-      context.write(new Text().set(strList[0]), new ArrayWritable(retVal.toArray(new Integer[retVal.size()])));
+      word.set(strList[0]);
+      context.write(word, new ArrayWritable(retVal.toArray(new String[retVal.size()])));
 /*      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
