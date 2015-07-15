@@ -10,6 +10,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.ArrayWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -20,7 +21,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class WordCount {
 
   public static class TokenizerMapper 
-       extends Mapper<Object, Text, Text, ArrayWritable>{
+       extends Mapper<Object, Text, Text, Text>{
     
     private final static IntWritable one = new IntWritable(1);
     private Text word = new Text();
@@ -33,9 +34,11 @@ public class WordCount {
       ArrayList<String> retVal = new ArrayList<String>();
       for(int i = 1; i < strList.length; i++)
       {
-        Double val = Double.valueOf(strList[i]);
-        if(val == maxVal)
+	Double val = Double.valueOf(strList[i]);
+        System.out.println(val + "," + maxVal);
+        if(val.equals(maxVal))
         {
+	  System.out.println();
           retVal.add("gene_" + String.valueOf(i));
         }
         else if(val > maxVal)
@@ -45,8 +48,11 @@ public class WordCount {
           retVal.add("gene_" + String.valueOf(i));
         }
       }
+      retVal.add(0, strList[0]);
       word.set(strList[0]);
-      context.write(word, new ArrayWritable(retVal.toArray(new String[retVal.size()])));
+      System.out.println(String.valueOf(retVal));
+      context.write(new Text(String.valueOf(retVal).replace("[", "").replace("]", "").replace(" ", "")), new Text("")); 
+	//new ArrayWritable(retVal.toArray(new String[retVal.size()])));
 /*      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
@@ -81,10 +87,11 @@ public class WordCount {
     Job job = new Job(conf, "word count");
     job.setJarByClass(WordCount.class);
     job.setMapperClass(TokenizerMapper.class);
+    job.setNumReduceTasks(0);
     //job.setCombinerClass(IntSumReducer.class);
     //job.setReducerClass(IntSumReducer.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
+    job.setOutputValueClass(Text.class);
     FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
     FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
