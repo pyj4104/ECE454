@@ -27,13 +27,29 @@ public class WordCount {
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
       System.out.println(value.toString());
-      int maxVal = 0;
-      StringTokenizer itr = new StringTokenizer(value.toString());
+      Double maxVal = 0;
+      String[] strList = value.toString().split(",");
+      ArrayList<String> retVal = new ArrayList<String>();
+      for(int i = 1; i < strList.length; i++)
+      {
+        Double value = Double.valueOf(strList[i]);
+        if(value == maxVal)
+        {
+          retVal.add("gene_" + String.valueOf(i));
+        }
+        else if(value > maxVal)
+        {
+          retVal.clear();
+          maxVal = value;
+          retVal.add("gene_" + String.valueOf(i));
+        }
+      }
+      context.write(strList[0], retVal);
+/*      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
         context.write(word, one);
-        System.out.println(context.toString());
-      }
+      }*/
     }
   }
   
@@ -63,8 +79,8 @@ public class WordCount {
     Job job = new Job(conf, "word count");
     job.setJarByClass(WordCount.class);
     job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
+    //job.setCombinerClass(IntSumReducer.class);
+    //job.setReducerClass(IntSumReducer.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
