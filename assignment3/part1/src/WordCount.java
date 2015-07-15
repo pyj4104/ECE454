@@ -44,11 +44,7 @@ public class WordCount {
           retVal.add("gene_" + String.valueOf(i));
         }
       }
-<<<<<<< HEAD
-      context.write(strList[0], retVal.toString());
-=======
       context.write(new Text().set(strList[0]), new ArrayWritable(retVal.toArray(new Integer[retVal.size()])));
->>>>>>> a7a80a34cf4c8f185366561405f40d51a3c74cf0
 /*      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
