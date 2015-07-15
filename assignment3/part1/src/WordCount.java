@@ -4,7 +4,7 @@
 
 import java.io.IOException;
 import java.util.StringTokenizer;
-
+import java.util.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -27,24 +27,24 @@ public class WordCount {
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
       System.out.println(value.toString());
-      Double maxVal = 0;
+      Double maxVal = 0.0;
       String[] strList = value.toString().split(",");
       ArrayList<String> retVal = new ArrayList<String>();
       for(int i = 1; i < strList.length; i++)
       {
-        Double value = Double.valueOf(strList[i]);
-        if(value == maxVal)
+        Double val = Double.valueOf(strList[i]);
+        if(val == maxVal)
         {
           retVal.add("gene_" + String.valueOf(i));
         }
-        else if(value > maxVal)
+        else if(val > maxVal)
         {
           retVal.clear();
-          maxVal = value;
+          maxVal = val;
           retVal.add("gene_" + String.valueOf(i));
         }
       }
-      context.write(strList[0], retVal);
+      context.write(strList[0], retVal.toString());
 /*      StringTokenizer itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
