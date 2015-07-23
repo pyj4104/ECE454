@@ -22,7 +22,7 @@ public class Part3 {
        extends Mapper<Object, Text, IntWritable, MapWritable>{
     
     private static final IntWritable one = new IntWritable(1);
-	private MapWritable mw = new MapWritable();
+	//private MapWritable mw = new MapWritable();
       
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
@@ -36,9 +36,10 @@ public class Part3 {
             //System.out.println("too short, length is " + values.length);
             return;
         }
-        //System.out.printf("Start map\nfirst item: %s, second item: %s\n",values[0],values[1]);
+        //System.out.printf("Start map\nfirst item: %s, second item: %s ...\n",values[0],values[1]);
         TextArrayWritable taw = new TextArrayWritable(Arrays.copyOfRange(values,1,values.length));
 		//System.out.printf("txtarrwritable: %s\n",taw.toString());
+        MapWritable mw = new MapWritable();
         mw.put(new Text(values[0]),taw);
 		//System.out.println("put into mapwritable");
         context.write(one,mw);
@@ -78,17 +79,25 @@ public class Part3 {
     public void reduce(IntWritable key, Iterable<MapWritable> values, 
 	    Context context
 	    ) throws IOException, InterruptedException {
-		//System.out.println("Start reduce");
+		System.out.println("Start reduce");
         ArrayList<MapWritable> cache = new ArrayList<MapWritable>();
 		Iterator<MapWritable> it = values.iterator();
         while(it.hasNext()){
-            MapWritable mw = new MapWritable(it.next());
-            for(Map.Entry entry : mw.entrySet()){
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-            }    
-            cache.add(mw);
+            MapWritable mw = it.next();
+            /*for(Map.Entry entry : mw.entrySet()){
+                System.out.println("K:V " + entry.getKey() + ": " + entry.getValue());
+            } */   
+            cache.add(new MapWritable(mw));
         }
-        	
+        /*System.out.println("print cache");
+        for(int i = 0; i < cache.size(); i++){
+            System.out.println("Iteration " + i);
+            Iterator iter = cache.get(i).entrySet().iterator();
+            while(iter.hasNext()){
+                Map.Entry thisEntry = (Map.Entry) iter.next();
+                System.out.println(thisEntry.getKey()+": "+thisEntry.getValue());
+            }
+        }*/
 		for(int i = 0; i < cache.size()-1; i++){
 			for(int j = i+1; j < cache.size(); j++){
 				Map.Entry entry = cache.get(i).entrySet().iterator().next();
