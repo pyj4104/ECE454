@@ -3,10 +3,11 @@ user=y27park
 dir=/user/$user
 hdfs dfs -rm -r -skipTrash /user/$user/output
 CLASSPATH=$(hadoop classpath):/usr/hdp/current/pig-client/pig-0.14.0.2.2.4.2-2-core-h2.jar
-rm \"pig_\"*
+rm "\"pig_\"*"
 cd myudf
 javac ToColumns.java
 jar -cf ../ToColumns.jar ToColumns.class
+rm ToColumns.class
 cd ..
-pig -param input=$dir/input/myfile.txt -param output=$dir/output part4.pig
+pig -param input=$dir/input/myfile.txt -param output=$dir/output p4p1.pig
 
