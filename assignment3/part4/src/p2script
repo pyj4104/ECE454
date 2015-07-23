@@ -1,0 +1,13 @@
+#!/bin/sh
+user=y27park
+dir=/user/$user
+hdfs dfs -rm -r -skipTrash /user/$user/output1
+CLASSPATH=$(hadoop classpath):/usr/hdp/current/pig-client/pig-0.14.0.2.2.4.2-2-core-h2.jar
+rm "\"pig_\"*"
+cd myudf
+javac part2.java
+jar -cf ../part2.jar part2.class
+rm part2.class
+cd ..
+pig -param input=$dir/input/myfile.txt -param output=$dir/output1 p4p2.pig
+
