@@ -2,12 +2,16 @@
 user=y27park
 dir=/user/$user
 hdfs dfs -rm -r -skipTrash /user/$user/output1
+export CLASSPATH
 CLASSPATH=$(hadoop classpath):/usr/hdp/current/pig-client/pig-0.14.0.2.2.4.2-2-core-h2.jar
 rm "\"pig_\"*"
 cd myudf
-javac part2.java
-jar -cf ../part2.jar part2.class
-rm part2.class
+javac part2GetGene.java
+javac part2Calculate.java
+jar -cf ../part2GetGene.jar part2GetGene.class
+jar -cf ../part2Calculate.jar part2Calculate.class
+rm part2GetGene.class
+rm part2Calculate.class
 cd ..
-pig -param input=$dir/input/myfile.txt -param output=$dir/output1 p4p2.pig
+pig -param input=$dir/input/1k_Samples -param output=$dir/output1 p4p2.pig
 

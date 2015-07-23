@@ -7,7 +7,7 @@ import org.apache.pig.data.DataBag;
 import org.apache.pig.data.BagFactory;
 import org.apache.pig.impl.util.WrappedIOException;
 
-public class part2 extends EvalFunc<DataBag>
+public class part2GetGene extends EvalFunc<DataBag>
 {
 	BagFactory mBag = BagFactory.getInstance();
 	TupleFactory mTuple = TupleFactory.getInstance();
