@@ -14,26 +14,33 @@ public class Part3calc extends EvalFunc<String>
 		{
 			return null;
 		}
-		ArrayList<Double> sample1 = new ArrayList<Double>();
+        //System.out.printf("Size: %d\nInput: %s\n",input.size(),input.toString());
+		//System.out.println(input.get(0));
+        ArrayList<Double> sample1 = new ArrayList<Double>();
 		ArrayList<Double> sample2 = new ArrayList<Double>();
 		boolean firstSample = true;
 		String s1 = "";
 		String s2 = "";
 		try
 		{
-			s1 = (String)input.get(0);
+			s1 = input.get(0).toString();
 			for(int i = 1; i < input.size(); i++){
 				try{
 					if(firstSample){
-						sample1.add(Double.parseDouble((String)input.get(i)));
+						sample1.add(Double.parseDouble(input.get(i).toString()));
 					}else{
-						sample2.add(Double.parseDouble((String)input.get(i)));
+						sample2.add(Double.parseDouble((String)input.get(i).toString()));
 					}
 				}catch(Exception e){
-					s2 = (String)input.get(i);
+					s2 = input.get(i).toString();
 					if(s1.equals(s2)){
 						return null;
 					}
+                    int first = Integer.parseInt(s1.substring(7,s1.length()));
+                    int second = Integer.parseInt(s2.substring(7,s2.length()));
+                    if(first >= second){
+                        return null;
+                    }
 					firstSample = false;
 				}
 			}
@@ -46,7 +53,7 @@ public class Part3calc extends EvalFunc<String>
 		}
 		catch(Exception e)
 		{
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
 			throw WrappedIOException.wrap(e);
 		}
 	}
