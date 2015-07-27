@@ -28,7 +28,7 @@ public class Part2 {
                     ) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString(),",");
 	  int geneNumber = 0;
-      System.out.println("Start mapping");
+      //System.out.println("Start mapping");
       while (itr.hasMoreTokens()) {
 		if(geneNumber == 0){
 			itr.nextToken();
@@ -37,7 +37,7 @@ public class Part2 {
 		}
        	geneValue.set(Double.parseDouble(itr.nextToken()));
         geneID.set("gene_"+geneNumber);
-        System.out.println("writing gene_"+geneNumber+" "+String.valueOf(geneValue));
+        //System.out.println("writing gene_"+geneNumber+" "+String.valueOf(geneValue));
         geneNumber++;
         context.write(geneID, geneValue);
       }
@@ -54,17 +54,17 @@ public class Part2 {
       int count = 0;
 	  int total = 0;
 	  double relation = 0.0;
-      System.out.println("Start reducing");
+      //System.out.println("Start reducing");
       for (DoubleWritable val : values) {
         if(val.get() > 0.5){
 			count++;
 		}
-        System.out.println("getting " + key + " " + val.get());
+        //System.out.println("getting " + key + " " + val.get());
 		total++;
       }
 	  relation = ((double)count) / total;
       result.set(relation);
-      System.out.println("Result: " + result.toString()+"\nrelation: " + relation);
+      //System.out.println("Result: " + result.toString()+"\nrelation: " + relation);
       context.write(key, result);
     }
   }

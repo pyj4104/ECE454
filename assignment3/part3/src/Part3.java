@@ -79,7 +79,7 @@ public class Part3 {
     public void reduce(IntWritable key, Iterable<MapWritable> values, 
 	    Context context
 	    ) throws IOException, InterruptedException {
-		System.out.println("Start reduce");
+		//System.out.println("Start reduce");
         ArrayList<MapWritable> cache = new ArrayList<MapWritable>();
 		Iterator<MapWritable> it = values.iterator();
         while(it.hasNext()){
@@ -111,7 +111,7 @@ public class Part3 {
 					sum += Double.parseDouble(entryStr[k]) * Double.parseDouble(entryStr2[k]);
                     //System.out.println("sum is " + sum);
 				}
-				result.set(sum);
+				result.set(Math.floor(sum*100)/100);
 				context.write(new Text(entry.getKey().toString() + "," + entry2.getKey().toString()),result);
 			}
 		}
