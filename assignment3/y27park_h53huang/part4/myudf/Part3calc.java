@@ -49,7 +49,7 @@ public class Part3calc extends EvalFunc<String>
 				result += sample1.get(i) * sample2.get(i);
 			}
 			
-			return String.format("%s,%s,%.2f", s1,s2,result);
+			return String.format("%s,%s,%.4f", s1,s2,result);
 		}
 		catch(Exception e)
 		{

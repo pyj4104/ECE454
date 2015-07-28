@@ -35,7 +35,7 @@ public class part2Calculate extends EvalFunc<String>
 					validGenes++;
 				}
 			}
-			return String.format("%.3f", ((double)validGenes/tot));
+			return String.format("%.4f", ((double)validGenes/tot));
 		}
 		catch(Exception e)
 		{

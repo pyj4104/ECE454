@@ -63,7 +63,7 @@ public class Part2 {
 		total++;
       }
 	  relation = ((double)count) / total;
-      result.set(relation);
+      result.set(Math.floor(relation*10000)/10000);
       //System.out.println("Result: " + result.toString()+"\nrelation: " + relation);
       context.write(key, result);
     }

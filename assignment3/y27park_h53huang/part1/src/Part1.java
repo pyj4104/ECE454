@@ -50,31 +50,15 @@ public class Part1 {
       context.write(new Text(String.valueOf(retVal).replace("[", "").replace("]", "").replace(" ", "")), new Text("")); 
     }
   }
-  
-  public static class IntSumReducer 
-       extends Reducer<Text,IntWritable,Text,IntWritable> {
-    private IntWritable result = new IntWritable();
-
-    public void reduce(Text key, Iterable<IntWritable> values, 
-                       Context context
-                       ) throws IOException, InterruptedException {
-      int sum = 0;
-      for (IntWritable val : values) {
-        sum += val.get();
-      }
-      result.set(sum);
-      context.write(key, result);
-    }
-  }
 
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
     String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
     if (otherArgs.length != 2) {
-      System.err.println("Usage: wordcount <in> <out>");
+      System.err.println("Usage: Part 1 <in> <out>");
       System.exit(2);
     }
-    Job job = new Job(conf, "word count");
+    Job job = new Job(conf, "Part 1");
     job.setJarByClass(Part1.class);
     job.setMapperClass(TokenizerMapper.class);
     job.setNumReduceTasks(0);

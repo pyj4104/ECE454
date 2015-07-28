@@ -83,21 +83,9 @@ public class Part3 {
         ArrayList<MapWritable> cache = new ArrayList<MapWritable>();
 		Iterator<MapWritable> it = values.iterator();
         while(it.hasNext()){
-            MapWritable mw = it.next();
-            /*for(Map.Entry entry : mw.entrySet()){
-                System.out.println("K:V " + entry.getKey() + ": " + entry.getValue());
-            } */   
+            MapWritable mw = it.next();  
             cache.add(new MapWritable(mw));
         }
-        /*System.out.println("print cache");
-        for(int i = 0; i < cache.size(); i++){
-            System.out.println("Iteration " + i);
-            Iterator iter = cache.get(i).entrySet().iterator();
-            while(iter.hasNext()){
-                Map.Entry thisEntry = (Map.Entry) iter.next();
-                System.out.println(thisEntry.getKey()+": "+thisEntry.getValue());
-            }
-        }*/
 		for(int i = 0; i < cache.size()-1; i++){
 			for(int j = i+1; j < cache.size(); j++){
 				Map.Entry entry = cache.get(i).entrySet().iterator().next();
@@ -111,7 +99,7 @@ public class Part3 {
 					sum += Double.parseDouble(entryStr[k]) * Double.parseDouble(entryStr2[k]);
                     //System.out.println("sum is " + sum);
 				}
-				result.set(Math.floor(sum*100)/100);
+				result.set(Math.floor(sum*10000)/10000);
 				context.write(new Text(entry.getKey().toString() + "," + entry2.getKey().toString()),result);
 			}
 		}
