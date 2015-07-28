@@ -36,11 +36,7 @@
 
   <target name="dist" depends="compile"
         description="generate the distribution">
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
-
-    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/lib/SA.jar" basedir="${build}"/>
+    <jar jarfile="Part1.jar" basedir="${build}"/>
   </target>
 
   <target name="clean"

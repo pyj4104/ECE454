@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class WordCount {
+public class Part1 {
 
   public static class TokenizerMapper 
        extends Mapper<Object, Text, Text, Text>{
@@ -28,17 +28,14 @@ public class WordCount {
       
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
-      System.out.println(value.toString());
       Double maxVal = 0.0;
       String[] strList = value.toString().split(",");
       ArrayList<String> retVal = new ArrayList<String>();
       for(int i = 1; i < strList.length; i++)
       {
 	Double val = Double.valueOf(strList[i]);
-        System.out.println(val + "," + maxVal);
         if(val.equals(maxVal))
         {
-	  System.out.println();
           retVal.add("gene_" + String.valueOf(i));
         }
         else if(val > maxVal)
@@ -50,14 +47,7 @@ public class WordCount {
       }
       retVal.add(0, strList[0]);
       word.set(strList[0]);
-      System.out.println(String.valueOf(retVal));
       context.write(new Text(String.valueOf(retVal).replace("[", "").replace("]", "").replace(" ", "")), new Text("")); 
-	//new ArrayWritable(retVal.toArray(new String[retVal.size()])));
-/*      StringTokenizer itr = new StringTokenizer(value.toString());
-      while (itr.hasMoreTokens()) {
-        word.set(itr.nextToken());
-        context.write(word, one);
-      }*/
     }
   }
   
@@ -85,11 +75,9 @@ public class WordCount {
       System.exit(2);
     }
     Job job = new Job(conf, "word count");
-    job.setJarByClass(WordCount.class);
+    job.setJarByClass(Part1.class);
     job.setMapperClass(TokenizerMapper.class);
     job.setNumReduceTasks(0);
-    //job.setCombinerClass(IntSumReducer.class);
-    //job.setReducerClass(IntSumReducer.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
     FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
