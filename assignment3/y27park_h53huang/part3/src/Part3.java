@@ -111,6 +111,7 @@ public class Part3 {
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
 	conf.set("mapreduce.output.textoutputformat.separator",",");
+    conf.setLong("mapreduce.task.timeout",1000*60*60);
     String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
     if (otherArgs.length != 2) {
       System.err.println("Usage: Part3 <in> <out>");
