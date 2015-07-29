@@ -99,7 +99,7 @@ public class Part3 {
 					sum += Double.parseDouble(entryStr[k]) * Double.parseDouble(entryStr2[k]);
                     //System.out.println("sum is " + sum);
 				}
-				result.set(Math.floor(sum*10000)/10000);
+				result.set(Math.floor(sum*1000)/1000);
 				context.write(new Text(entry.getKey().toString() + "," + entry2.getKey().toString()),result);
 			}
 		}
